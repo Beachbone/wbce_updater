@@ -126,35 +126,9 @@ try {
     @unlink(WB_PATH . '/temp_download.zip');
 }
 
-// Step 2: Download update script
-if ($success) {
-    try {
-        // Try primary URL
-        $unzip_url = 'https://addons.wbce.org/modules/unzipper/wup.php.txt';
-        $unzip_content = @file_get_contents($unzip_url);
-
-        // Fallback URL
-        if ($unzip_content === false) {
-            $unzip_url = 'https://wbce.org/media/wbce_update_unzip.txt';
-            $unzip_content = @file_get_contents($unzip_url);
-        }
-
-        if ($unzip_content === false) {
-            throw new Exception($LANG['ERROR_UNZIP_DOWNLOAD_FAILED']);
-        }
-
-        $unzip_path = WB_PATH . '/wbce_update_unzip.php';
-        $bytes_written = file_put_contents($unzip_path, $unzip_content);
-
-        if ($bytes_written === false) {
-            throw new Exception($LANG['ERROR_UNZIP_SAVE_FAILED']);
-        }
-
-    } catch (Exception $e) {
-        $errors[] = $e->getMessage();
-        $success = false;
-    }
-}
+// Step 2: Prepare update execution (using integrated script)
+// NOTE: No longer downloading external wbce_update_unzip.php
+// Using integrated execute_update.php from this module instead
 
 // Step 3: Enable maintenance mode (optional)
 $maintenance_activated = false;
@@ -215,7 +189,7 @@ if ($success && $enable_maintenance) {
 }
 
 // Generate output
-$update_url = WB_URL . '/wbce_update_unzip.php';
+$update_url = WB_URL . '/modules/wbce_updater/execute_update.php?version=' . urlencode($target_version);
 
 ?>
 <!DOCTYPE html>
@@ -308,7 +282,7 @@ $update_url = WB_URL . '/wbce_update_unzip.php';
                 <strong><?php echo $LANG['SUCCESS_FILES_DOWNLOADED']; ?></strong>
                 <ul class="file-list">
                     <li><code>wbceup.zip</code> - <?php echo $LANG['SUCCESS_UPDATE_PACKAGE']; ?></li>
-                    <li><code>wbce_update_unzip.php</code> - <?php echo $LANG['SUCCESS_UPDATE_SCRIPT']; ?></li>
+                    <li><code>execute_update.php</code> - <?php echo $LANG['SUCCESS_UPDATE_SCRIPT']; ?> (integriert)</li>
                 </ul>
             </div>
 
