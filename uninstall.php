@@ -7,7 +7,7 @@
  *
  * @category    module
  * @package     wbce_updater
- * @version     0.9.6
+ * @version     0.9.11
  * @author      WBCE Community
  * @copyright   2025 WBCE Community
  * @license     MIT License

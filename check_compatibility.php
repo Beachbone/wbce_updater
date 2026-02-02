@@ -4,8 +4,12 @@
  *
  * AJAX endpoint for checking PHP compatibility with target WBCE version
  *
- * @author WBCE Community
- * @license GPL-3.0
+ * @category    module
+ * @package     wbce_updater
+ * @version     0.9.11
+ * @author      WBCE Community
+ * @copyright   2025 WBCE Community
+ * @license     MIT License
  */
 
 // Start output buffering to catch any unwanted output

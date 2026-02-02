@@ -4,8 +4,12 @@
  *
  * Checks PHP version compatibility for WBCE versions based on requirements.json
  *
- * @author WBCE Community
- * @license GPL-3.0
+ * @category    module
+ * @package     wbce_updater
+ * @version     0.9.11
+ * @author      WBCE Community
+ * @copyright   2025 WBCE Community
+ * @license     MIT License
  */
 
 // Prevent direct access

@@ -19,7 +19,7 @@ if (!defined('WB_PATH')) {
 $module_directory     = 'wbce_updater';
 $module_name          = 'WBCE Update-Assistent';
 $module_function      = 'tool';
-$module_version       = '0.9.10';
+$module_version       = '0.9.11';
 $module_platform      = '1.4 | 1.5 | 1.6';
 $module_author        = 'WBCE Community';
 $module_license       = 'MIT License';
