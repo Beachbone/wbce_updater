@@ -28,9 +28,13 @@ Ein Update-Assistent für WBCE CMS mit PHP-Kompatibilitätsprüfung und Checksum
 
 ## Installation
 
-1. Modul in `/modules/wbce_updater/` kopieren
+1. Code von hier als ZIP herunterladen.
 2. Im WBCE Backend unter "Addons" → "Module" installieren
 3. Über "Admin-Tools" → "WBCE Update-Assistent" aufrufen
+
+## Upgrade
+
+Ein upgrade wird autoimatisch erkannt und wird gleich installiert. 
 
 ## Lizenz
 
