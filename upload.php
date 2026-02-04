@@ -100,6 +100,36 @@ try {
         throw new Exception($LANG['ERROR_UPLOAD_FAILED']);
     }
 
+    // Security: Validate file extension
+    $file_extension = strtolower(pathinfo($uploaded_name, PATHINFO_EXTENSION));
+    if ($file_extension !== 'zip') {
+        throw new Exception('Nur ZIP-Dateien sind erlaubt. Hochgeladene Datei: ' . htmlspecialchars($uploaded_name));
+    }
+
+    // Security: Validate MIME type using finfo
+    if (function_exists('finfo_open')) {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime_type = finfo_file($finfo, $uploaded_file);
+        finfo_close($finfo);
+
+        $allowed_mime_types = [
+            'application/zip',
+            'application/x-zip',
+            'application/x-zip-compressed',
+            'application/octet-stream' // Some servers report this for ZIP
+        ];
+
+        if (!in_array($mime_type, $allowed_mime_types)) {
+            throw new Exception('Ungültiger Dateityp. Nur ZIP-Dateien sind erlaubt. Erkannter Typ: ' . htmlspecialchars($mime_type));
+        }
+    }
+
+    // Security: Check file size (max 100MB)
+    $max_upload_size = 100 * 1024 * 1024; // 100 MB
+    if ($_FILES['zip_file']['size'] > $max_upload_size) {
+        throw new Exception('Datei zu groß. Maximal erlaubt: 100 MB');
+    }
+
 
     // Check if file is a valid ZIP
     $zip = new ZipArchive();

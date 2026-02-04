@@ -19,9 +19,14 @@ if (!file_exists($configFile)) {
     die('Configuration file not found');
 }
 require $configFile;
+require_once WB_PATH . '/framework/class.admin.php';
 
 // Include compatibility checker for dynamic PHP version check
 require_once __DIR__ . '/compatibility_checker.php';
+
+// Security check: Admin only (full admin class validation)
+// This checks both authentication AND admin permissions
+$admin = new admin('Admintools', 'admintools', false, false);
 
 // Load language file
 $lang = (file_exists(__DIR__ . '/languages/' . LANGUAGE . '.php'))
@@ -29,14 +34,14 @@ $lang = (file_exists(__DIR__ . '/languages/' . LANGUAGE . '.php'))
     : __DIR__ . '/languages/EN.php';
 require $lang;
 
-// Security check: Admin only (session-based)
-if (!isset($_SESSION['USER_ID']) || !$_SESSION['USER_ID']) {
-    http_response_code(403);
-    die('Access denied: Not authenticated');
-}
-
 // Get target version from GET parameter
 $targetVersion = $_GET['version'] ?? '';
+
+// Security: Validate version format
+if (!empty($targetVersion) && !preg_match('/^v?\d+\.\d+(\.\d+)?$/i', $targetVersion)) {
+    http_response_code(400);
+    die('Invalid version format: ' . htmlspecialchars($targetVersion));
+}
 
 // Start output
 ?>
@@ -198,13 +203,51 @@ if ($success) {
 
         if ($res === TRUE) {
             $path = WB_PATH;
-
-            // Extract
-            $zip->extractTo($path);
             $numFiles = $zip->numFiles;
+
+            // Security: Validate all file paths before extraction to prevent ZIP-Slip attacks
+            $realBasePath = realpath($path);
+            if ($realBasePath === false) {
+                throw new Exception('Zielverzeichnis konnte nicht aufgelöst werden');
+            }
+
+            for ($i = 0; $i < $numFiles; $i++) {
+                $stat = $zip->statIndex($i);
+                $filename = $stat['name'];
+
+                // Check for directory traversal patterns
+                if (strpos($filename, '../') !== false || strpos($filename, '..\\') !== false) {
+                    $zip->close();
+                    throw new Exception('Sicherheitswarnung: Ungültiger Dateipfad im ZIP-Archiv erkannt: ' . htmlspecialchars($filename));
+                }
+
+                // Build full path and resolve it
+                $fullPath = $path . DIRECTORY_SEPARATOR . $filename;
+                $realPath = realpath(dirname($fullPath));
+
+                // For new files, realpath might return false, so check parent directory
+                if ($realPath === false) {
+                    // File doesn't exist yet, check parent directory
+                    $parentDir = dirname($fullPath);
+                    if (!file_exists($parentDir)) {
+                        // Parent doesn't exist, will be created by extractTo
+                        continue;
+                    }
+                    $realPath = realpath($parentDir);
+                }
+
+                // Ensure the resolved path is within the base path
+                if ($realPath !== false && strpos($realPath, $realBasePath) !== 0) {
+                    $zip->close();
+                    throw new Exception('Sicherheitswarnung: Versuch erkannt, Dateien außerhalb des Zielverzeichnisses zu extrahieren');
+                }
+            }
+
+            // All paths validated, now extract
+            $zip->extractTo($path);
             $zip->close();
 
-            echo '<span style="color: #28a745;">✅ ' . $numFiles . ' Dateien nach ' . htmlspecialchars($path) . ' entpackt</span>';
+            echo '<span style="color: #28a745;">✅ ' . $numFiles . ' Dateien sicher nach ' . htmlspecialchars($path) . ' entpackt</span>';
         } else {
             throw new Exception('ZIP-Archiv konnte nicht geöffnet werden (Error Code: ' . $res . ')');
         }

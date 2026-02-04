@@ -53,6 +53,32 @@ if (empty($download_url)) {
     exit;
 }
 
+// Security: Validate download URL to prevent SSRF attacks
+$parsed_url = parse_url($download_url);
+if (!$parsed_url) {
+    $admin->print_error('Ungültige URL-Format');
+    exit;
+}
+
+// Only allow HTTPS protocol
+if (!isset($parsed_url['scheme']) || $parsed_url['scheme'] !== 'https') {
+    $admin->print_error('Nur HTTPS URLs sind erlaubt. HTTP und andere Protokolle sind aus Sicherheitsgründen nicht zulässig.');
+    exit;
+}
+
+// Only allow GitHub domains (api.github.com or github.com)
+if (!isset($parsed_url['host']) ||
+    !preg_match('/^(api\.)?github\.com$/i', $parsed_url['host'])) {
+    $admin->print_error('Nur Downloads von github.com sind erlaubt. Angegebener Host: ' . htmlspecialchars($parsed_url['host']));
+    exit;
+}
+
+// Security: Validate version format
+if (!empty($target_version) && !preg_match('/^v?\d+\.\d+(\.\d+)?$/i', $target_version)) {
+    $admin->print_error('Ungültiges Versionsformat: ' . htmlspecialchars($target_version));
+    exit;
+}
+
 if (!$backup_confirmed) {
     $admin->print_error($LANG['ERROR_BACKUP_NOT_CONFIRMED']);
     exit;

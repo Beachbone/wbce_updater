@@ -38,7 +38,9 @@ if (!isset($database) || !$database) {
     $database = new database();
 }
 
-$result = $database->query("SELECT value FROM " . TABLE_PREFIX . "settings WHERE name='wbce_version'");
+// Security: Use parameterized query (escape values even though they're hardcoded)
+$setting_name = $database->escapeString('wbce_version');
+$result = $database->query("SELECT value FROM " . TABLE_PREFIX . "settings WHERE name='" . $setting_name . "'");
 if ($result && $result->numRows() > 0) {
     $row = $result->fetchRow(MYSQLI_ASSOC);
     $current_version = $row['value'];
@@ -46,8 +48,10 @@ if ($result && $result->numRows() > 0) {
     $current_version = 'Unknown';
 }
 
-// Check if Backup Plus is installed
-$result = $database->query("SELECT * FROM " . TABLE_PREFIX . "addons WHERE directory='backup_plus' AND type='module'");
+// Check if Backup Plus is installed (using escaped values)
+$addon_dir = $database->escapeString('backup_plus');
+$addon_type = $database->escapeString('module');
+$result = $database->query("SELECT * FROM " . TABLE_PREFIX . "addons WHERE directory='" . $addon_dir . "' AND type='" . $addon_type . "'");
 $backup_plus_installed = ($result && $result->numRows() > 0);
 
 // Add custom CSS
@@ -55,8 +59,8 @@ $backup_plus_installed = ($result && $result->numRows() > 0);
 <link rel="stylesheet" href="<?php echo WB_URL; ?>/modules/wbce_updater/css/backend.css">
 
 <div class="wbce-updater-container">
-        <h1><?php echo $LANG['TOOL_NAME']; ?></h1>
-        <p class="version-display"><strong><?php echo $LANG['CURRENT_VERSION']; ?>:</strong> <?php echo htmlspecialchars($current_version); ?></p>
+        <h1><?php echo htmlspecialchars($LANG['TOOL_NAME']); ?></h1>
+        <p class="version-display"><strong><?php echo htmlspecialchars($LANG['CURRENT_VERSION']); ?>:</strong> <?php echo htmlspecialchars($current_version); ?></p>
 
         <!-- Backup Warning Section -->
         <div class="backup-section">
@@ -205,6 +209,36 @@ $backup_plus_installed = ($result && $result->numRows() > 0);
         // Current version for comparison
         const currentVersion = '<?php echo $current_version; ?>';
 
+        // CSRF Token for AJAX requests
+        const ftanToken = '<?php echo $admin->getFTAN_value(); ?>';
+
+        // Security: Pre-escape language strings for JavaScript context
+        const LANG = {
+            ERROR_LOADING_UPDATES: <?php echo json_encode($LANG['ERROR_LOADING_UPDATES']); ?>,
+            GITHUB_TIMEOUT_HINT: <?php echo json_encode($LANG['GITHUB_TIMEOUT_HINT']); ?>,
+            NO_UPDATES_AVAILABLE: <?php echo json_encode($LANG['NO_UPDATES_AVAILABLE']); ?>,
+            UP_TO_DATE: <?php echo json_encode($LANG['UP_TO_DATE']); ?>,
+            HIDE_ADDITIONAL_UPDATES: <?php echo json_encode($LANG['HIDE_ADDITIONAL_UPDATES']); ?>,
+            SHOW_ADDITIONAL_UPDATES: <?php echo json_encode($LANG['SHOW_ADDITIONAL_UPDATES']); ?>,
+            HIDDEN_UPDATES: <?php echo json_encode($LANG['HIDDEN_UPDATES']); ?>,
+            RECOMMENDED_UPDATE: <?php echo json_encode($LANG['RECOMMENDED_UPDATE']); ?>,
+            OTHER_UPDATES: <?php echo json_encode($LANG['OTHER_UPDATES']); ?>,
+            RISK_PATCH: <?php echo json_encode($LANG['RISK_PATCH']); ?>,
+            RISK_MINOR: <?php echo json_encode($LANG['RISK_MINOR']); ?>,
+            RISK_MAJOR: <?php echo json_encode($LANG['RISK_MAJOR']); ?>,
+            PHP_COMPATIBLE: <?php echo json_encode($LANG['PHP_COMPATIBLE']); ?>,
+            PHP_INCOMPATIBLE: <?php echo json_encode($LANG['PHP_INCOMPATIBLE']); ?>,
+            PHP_EOL_WARNING: <?php echo json_encode($LANG['PHP_EOL_WARNING']); ?>,
+            RELEASED: <?php echo json_encode($LANG['RELEASED']); ?>,
+            VIEW_DETAILS: <?php echo json_encode($LANG['VIEW_DETAILS']); ?>,
+            DOWNLOAD_PREPARE: <?php echo json_encode($LANG['DOWNLOAD_PREPARE']); ?>,
+            ERROR_BACKUP_NOT_CONFIRMED: <?php echo json_encode($LANG['ERROR_BACKUP_NOT_CONFIRMED']); ?>,
+            ERROR_NO_FILE_UPLOADED: <?php echo json_encode($LANG['ERROR_NO_FILE_UPLOADED']); ?>,
+            LOADING: <?php echo json_encode($LANG['LOADING']); ?>,
+            CONFIRM_MINOR_UPDATE: <?php echo json_encode($LANG['CONFIRM_MINOR_UPDATE']); ?>,
+            CONFIRM_MAJOR_UPDATE: <?php echo json_encode($LANG['CONFIRM_MAJOR_UPDATE']); ?>
+        };
+
         /**
          * Opens Backup Plus in new window
          */
@@ -256,11 +290,13 @@ $backup_plus_installed = ($result && $result->numRows() > 0);
             container.innerHTML = '';
 
             fetch('<?php echo WB_URL; ?>/modules/wbce_updater/check_version.php', {
-                method: 'GET',
+                method: 'POST',
                 headers: {
                     'Accept': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                credentials: 'same-origin' // Include session cookies
+                credentials: 'same-origin', // Include session cookies
+                body: 'ftan=' + encodeURIComponent(ftanToken)
             })
             .then(response => {
                 // First check if response is ok
@@ -291,11 +327,11 @@ $backup_plus_installed = ($result && $result->numRows() > 0);
                 if (data.error) {
                     // Check if error is a timeout/gateway error
                     let errorHtml = '<div class="error-box">' +
-                        '<?php echo $LANG['ERROR_LOADING_UPDATES']; ?>: ' +
-                        data.error;
+                        LANG.ERROR_LOADING_UPDATES + ': ' +
+                        escapeHtml(data.error);
 
                     if (data.error.includes('Timeout') || data.error.includes('Gateway')) {
-                        errorHtml += '<br><br><em><?php echo $LANG['GITHUB_TIMEOUT_HINT']; ?></em>';
+                        errorHtml += '<br><br><em>' + LANG.GITHUB_TIMEOUT_HINT + '</em>';
                     }
 
                     errorHtml += '</div>';
@@ -318,14 +354,14 @@ $backup_plus_installed = ($result && $result->numRows() > 0);
                     displayUpdates(data.updates);
                 } else {
                     container.innerHTML = cacheInfo + '<div class="info-box">' +
-                        '<?php echo $LANG['NO_UPDATES_AVAILABLE']; ?></div>';
+                        LANG.NO_UPDATES_AVAILABLE + '</div>';
                 }
             })
             .catch(error => {
                 loading.style.display = 'none';
                 container.innerHTML = '<div class="error-box">' +
-                    '<?php echo $LANG['ERROR_LOADING_UPDATES']; ?>: ' +
-                    error.message + '</div>';
+                    LANG.ERROR_LOADING_UPDATES + ': ' +
+                    escapeHtml(error.message) + '</div>';
                 console.error('Error:', error);
             });
         }
@@ -436,8 +472,8 @@ $backup_plus_installed = ($result && $result->numRows() > 0);
 
             toggleBtns.forEach(btn => {
                 btn.textContent = isCurrentlyHidden
-                    ? '<?php echo $LANG['HIDE_ADDITIONAL_UPDATES']; ?>'
-                    : '<?php echo $LANG['SHOW_ADDITIONAL_UPDATES']; ?>';
+                    ? LANG.HIDE_ADDITIONAL_UPDATES
+                    : LANG.SHOW_ADDITIONAL_UPDATES;
             });
         }
 
@@ -447,7 +483,14 @@ $backup_plus_installed = ($result && $result->numRows() > 0);
         async function checkPhpCompatibilityForUpdates(updates) {
             const promises = updates.map(async (update) => {
                 try {
-                    const response = await fetch('<?php echo WB_URL; ?>/modules/wbce_updater/check_compatibility.php?version=' + encodeURIComponent(update.version));
+                    const response = await fetch('<?php echo WB_URL; ?>/modules/wbce_updater/check_compatibility.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        credentials: 'same-origin',
+                        body: 'ftan=' + encodeURIComponent(ftanToken) + '&version=' + encodeURIComponent(update.version)
+                    });
                     if (response.ok) {
                         const data = await response.json();
                         update.phpCompatibility = data;
@@ -495,7 +538,7 @@ $backup_plus_installed = ($result && $result->numRows() > 0);
             if (recommendedUpdate) {
                 const recSection = document.createElement('div');
                 recSection.className = 'recommended-section';
-                recSection.innerHTML = '<h3 class="section-title-green"><?php echo $LANG['RECOMMENDED_UPDATE']; ?></h3>';
+                recSection.innerHTML = '<h3 class="section-title-green">' + LANG.RECOMMENDED_UPDATE + '</h3>';
                 recSection.appendChild(createUpdateCard(recommendedUpdate, true, false));
                 container.appendChild(recSection);
             }
@@ -504,20 +547,20 @@ $backup_plus_installed = ($result && $result->numRows() > 0);
             if (otherUpdates.length > 0) {
                 const otherSection = document.createElement('div');
                 otherSection.className = 'other-updates-section';
-                otherSection.innerHTML = '<h3 class="section-title-gray"><?php echo $LANG['OTHER_UPDATES']; ?></h3>';
+                otherSection.innerHTML = '<h3 class="section-title-gray">' + LANG.OTHER_UPDATES + '</h3>';
 
                 // Add toggle button at the top if there are hidden updates
                 if (hiddenCount > 0) {
                     const toggleBtnTop = document.createElement('button');
                     toggleBtnTop.type = 'button';
                     toggleBtnTop.className = 'btn-toggle toggle-hidden-btn';
-                    toggleBtnTop.textContent = '<?php echo $LANG['SHOW_ADDITIONAL_UPDATES']; ?>';
+                    toggleBtnTop.textContent = LANG.SHOW_ADDITIONAL_UPDATES;
                     toggleBtnTop.onclick = toggleHiddenUpdates;
                     otherSection.appendChild(toggleBtnTop);
 
                     const countInfo = document.createElement('span');
                     countInfo.className = 'hidden-count';
-                    countInfo.textContent = ' (' + hiddenCount + ' <?php echo $LANG['HIDDEN_UPDATES']; ?>)';
+                    countInfo.textContent = ' (' + hiddenCount + ' ' + LANG.HIDDEN_UPDATES + ')';
                     otherSection.appendChild(countInfo);
                 }
 
@@ -530,7 +573,7 @@ $backup_plus_installed = ($result && $result->numRows() > 0);
                     const toggleBtnBottom = document.createElement('button');
                     toggleBtnBottom.type = 'button';
                     toggleBtnBottom.className = 'btn-toggle toggle-hidden-btn';
-                    toggleBtnBottom.textContent = '<?php echo $LANG['SHOW_ADDITIONAL_UPDATES']; ?>';
+                    toggleBtnBottom.textContent = LANG.SHOW_ADDITIONAL_UPDATES;
                     toggleBtnBottom.onclick = toggleHiddenUpdates;
                     otherSection.appendChild(toggleBtnBottom);
                 }
@@ -541,8 +584,8 @@ $backup_plus_installed = ($result && $result->numRows() > 0);
             // Check if no updates were found
             if (!recommendedUpdate && otherUpdates.length === 0) {
                 container.innerHTML = '<div class="info-box">' +
-                    '<strong>✓ <?php echo $LANG['NO_UPDATES_AVAILABLE']; ?></strong><br>' +
-                    '<?php echo $LANG['UP_TO_DATE']; ?>' +
+                    '<strong>✓ ' + LANG.NO_UPDATES_AVAILABLE + '</strong><br>' +
+                    LANG.UP_TO_DATE +
                     '</div>';
             }
 
@@ -563,9 +606,9 @@ $backup_plus_installed = ($result && $result->numRows() > 0);
             }
 
             const riskLabels = {
-                'patch': '<?php echo $LANG['RISK_PATCH']; ?>',
-                'minor': '<?php echo $LANG['RISK_MINOR']; ?>',
-                'major': '<?php echo $LANG['RISK_MAJOR']; ?>'
+                'patch': LANG.RISK_PATCH,
+                'minor': LANG.RISK_MINOR,
+                'major': LANG.RISK_MAJOR
             };
 
             const riskIcons = {
@@ -578,36 +621,39 @@ $backup_plus_installed = ($result && $result->numRows() > 0);
             let compatibilityBadgeHtml = '';
             if (update.phpCompatibility) {
                 if (update.phpCompatibility.compatible) {
-                    compatibilityBadgeHtml = '<span class="badge badge-success">✓ <?php echo $LANG['PHP_COMPATIBLE']; ?></span>';
+                    compatibilityBadgeHtml = '<span class="badge badge-success">✓ ' + LANG.PHP_COMPATIBLE + '</span>';
                     if (update.phpCompatibility.php_eol && update.phpCompatibility.php_eol.is_eol) {
-                        compatibilityBadgeHtml += ' <span class="badge badge-warning">⚠ <?php echo $LANG['PHP_EOL_WARNING']; ?></span>';
+                        compatibilityBadgeHtml += ' <span class="badge badge-warning">⚠ ' + LANG.PHP_EOL_WARNING + '</span>';
                     }
                 } else {
-                    compatibilityBadgeHtml = '<span class="badge badge-danger">⚠ <?php echo $LANG['PHP_INCOMPATIBLE']; ?></span>';
+                    compatibilityBadgeHtml = '<span class="badge badge-danger">⚠ ' + LANG.PHP_INCOMPATIBLE + '</span>';
                 }
             }
+
+            // Sanitize riskLevel to prevent XSS (only allow known values)
+            const safeRiskLevel = ['patch', 'minor', 'major'].includes(update.riskLevel) ? update.riskLevel : 'patch';
 
             div.innerHTML = `
                 <div class="update-header">
                     <div class="update-version-title">
-                        <h4>${currentVersion} → ${update.version}</h4>
-                        <span class="badge badge-${update.riskLevel}">${riskIcons[update.riskLevel]} ${riskLabels[update.riskLevel]}</span>
+                        <h4>${escapeHtml(currentVersion)} → ${escapeHtml(update.version)}</h4>
+                        <span class="badge badge-${safeRiskLevel}">${riskIcons[safeRiskLevel]} ${riskLabels[safeRiskLevel]}</span>
                         ${compatibilityBadgeHtml}
                     </div>
                 </div>
                 <div class="update-content">
                     <h5 class="update-name">${escapeHtml(update.name)}</h5>
-                    <p class="update-date"><?php echo $LANG['RELEASED']; ?>: ${formatDate(update.published_at)}</p>
+                    <p class="update-date">${LANG.RELEASED}: ${formatDate(update.published_at)}</p>
                     ${update.body ? '<div class="update-description">' + escapeHtml(update.body.substring(0, 250)) + ' ...</div>' : ''}
-                    ${update.html_url ? '<p class="update-link"><a href="' + escapeHtml(update.html_url) + '" target="_blank"><?php echo $LANG['VIEW_DETAILS']; ?></a></p>' : ''}
+                    ${update.html_url ? '<p class="update-link"><a href="' + escapeHtml(update.html_url) + '" target="_blank">' + LANG.VIEW_DETAILS + '</a></p>' : ''}
                 </div>
                 <div class="update-actions">
                     <button type="button"
                             class="btn-download download-button"
-                            data-checksum="${update.checksum || ''}"
-                            onclick="prepareUpdate('${escapeHtml(update.download_url)}', '${escapeHtml(update.version)}', '${update.riskLevel}', '${escapeHtml(update.checksum || '')}')"
+                            data-checksum="${escapeHtml(update.checksum || '')}"
+                            onclick="prepareUpdate('${escapeHtml(update.download_url)}', '${escapeHtml(update.version)}', '${safeRiskLevel}', '${escapeHtml(update.checksum || '')}')"
                             disabled>
-                        📥 <?php echo $LANG['DOWNLOAD_PREPARE']; ?>
+                        📥 ${LANG.DOWNLOAD_PREPARE}
                     </button>
                 </div>
             `;
@@ -680,7 +726,14 @@ $backup_plus_installed = ($result && $result->numRows() > 0);
             // Check PHP compatibility
             let phpCompatible = true;
             try {
-                const response = await fetch('<?php echo WB_URL; ?>/modules/wbce_updater/check_compatibility.php?version=' + encodeURIComponent(targetVersion));
+                const response = await fetch('<?php echo WB_URL; ?>/modules/wbce_updater/check_compatibility.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    credentials: 'same-origin',
+                    body: 'ftan=' + encodeURIComponent(ftanToken) + '&version=' + encodeURIComponent(targetVersion)
+                });
                 if (response.ok) {
                     const data = await response.json();
                     if (!data.compatible) {
@@ -790,14 +843,14 @@ $backup_plus_installed = ($result && $result->numRows() > 0);
 
             // Check if backup is confirmed
             if (!backupCheckbox.checked) {
-                alert('<?php echo $LANG['ERROR_BACKUP_NOT_CONFIRMED']; ?>');
+                alert(LANG.ERROR_BACKUP_NOT_CONFIRMED);
                 event.preventDefault();
                 return false;
             }
 
             // Check if file is selected
             if (fileInput.files.length === 0) {
-                alert('<?php echo $LANG['ERROR_NO_FILE_UPLOADED']; ?>');
+                alert(LANG.ERROR_NO_FILE_UPLOADED);
                 event.preventDefault();
                 return false;
             }
@@ -831,7 +884,7 @@ $backup_plus_installed = ($result && $result->numRows() > 0);
             }
 
             document.getElementById('upload-button').disabled = true;
-            document.getElementById('upload-button').textContent = '⏳ <?php echo $LANG['LOADING']; ?>...';
+            document.getElementById('upload-button').textContent = '⏳ ' + LANG.LOADING + '...';
 
             return true;
         }

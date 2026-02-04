@@ -28,13 +28,19 @@ if (!file_exists($configFile)) {
     exit(json_encode(['error' => 'Configuration file not found']));
 }
 require $configFile;
+require_once WB_PATH . '/framework/class.admin.php';
 
-// Check if user is logged in (session-based check without full admin class init)
-if (!isset($_SESSION['USER_ID']) || !$_SESSION['USER_ID']) {
+// Security check: Admin only (without header output for AJAX)
+$admin = new admin('Admintools', 'admintools', false, false);
+
+// CSRF protection: Check FTAN token
+// Token can be sent via POST parameter or custom header
+$ftan = $_POST['ftan'] ?? $_SERVER['HTTP_X_FTAN'] ?? '';
+if (empty($ftan) || !$admin->checkFTAN($ftan)) {
     ob_end_clean();
     http_response_code(403);
     header('Content-Type: application/json');
-    exit(json_encode(['error' => 'Not authenticated']));
+    exit(json_encode(['error' => 'Invalid or missing CSRF token']));
 }
 
 // Clear any output that might have been generated

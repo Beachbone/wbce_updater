@@ -160,6 +160,12 @@ function repackZip($sourceZip, $targetZip, $subPath = null, $targetFolderName = 
             // Neuen Pfad berechnen (den Präfix abschneiden)
             $relativePath = $subPath === '' ? $fullPath : substr($fullPath, strlen($subPath));
 
+            // Security: Check for path traversal attempts
+            if (strpos($relativePath, '..') !== false) {
+                $errors[] = 'Sicherheitswarnung: Ungültiger Pfad erkannt: ' . $relativePath;
+                continue;
+            }
+
             // Nur hinzufügen, wenn es kein leerer Ordnername ist
             if ($relativePath !== false && $relativePath !== "" && substr($relativePath, -1) !== '/') {
                 $content = $zip->getFromIndex($i);
