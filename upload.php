@@ -6,9 +6,9 @@
  *
  * @category    module
  * @package     wbce_updater
- * @version     0.9.11
+ * @version     0.9.14
  * @author      WBCE Community
- * @copyright   2025 WBCE Community
+ * @copyright   2026 WBCE Community
  * @license     MIT License
  */
 
@@ -18,6 +18,9 @@ set_time_limit(300);
 // Include WBCE framework
 require '../../config.php';
 require_once WB_PATH . '/framework/class.admin.php';
+
+// Load central configuration
+require_once __DIR__ . '/config_defaults.php';
 
 // Include checksum validator
 require_once __DIR__ . '/checksum_validator.php';
@@ -88,7 +91,8 @@ try {
         case UPLOAD_ERR_CANT_WRITE:
             throw new Exception($LANG['ERROR_UPLOAD_CANT_WRITE']);
         default:
-            throw new Exception($LANG['ERROR_UPLOAD_FAILED'] . ' (Error code: ' . $_FILES['zip_file']['error'] . ')');
+            // Generic error message to avoid information disclosure
+            throw new Exception($LANG['ERROR_UPLOAD_FAILED']);
     }
 
     $uploaded_file = $_FILES['zip_file']['tmp_name'];
@@ -124,10 +128,9 @@ try {
         }
     }
 
-    // Security: Check file size (max 100MB)
-    $max_upload_size = 100 * 1024 * 1024; // 100 MB
-    if ($_FILES['zip_file']['size'] > $max_upload_size) {
-        throw new Exception('Datei zu groß. Maximal erlaubt: 100 MB');
+    // Security: Check file size (configurable max size)
+    if ($_FILES['zip_file']['size'] > WBCE_UPDATER_MAX_UPLOAD_SIZE) {
+        throw new Exception('Datei zu groß. Maximal erlaubt: ' . round(WBCE_UPDATER_MAX_UPLOAD_SIZE / 1024 / 1024) . ' MB');
     }
 
 
@@ -383,6 +386,11 @@ $update_url = WB_URL . '/modules/wbce_updater/execute_update.php';
                 <p style="font-size: 13px; margin-top: 8px; color: #666;">
                     <?php echo $LANG['CHECKSUM_VERIFY_INFO'] ?? 'Verify this checksum matches the official release checksum before proceeding.'; ?>
                 </p>
+                <?php if (!WBCE_UPDATER_VERIFY_CHECKSUMS): ?>
+                <p style="font-size: 13px; margin-top: 8px; color: #dc3545; font-weight: bold;">
+                    ⚠️ <?php echo $LANG['WARNING_CHECKSUM_DISABLED_MANUAL']; ?>
+                </p>
+                <?php endif; ?>
             </div>
             <?php endif; ?>
 

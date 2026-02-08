@@ -7,7 +7,7 @@
  * @category    module
  * @package     wbce_updater
  * @author      WBCE Community
- * @copyright   2025 WBCE Community
+ * @copyright   2026 WBCE Community
  * @license     MIT License
  */
 
@@ -20,7 +20,7 @@ $module_directory     = 'wbce_updater';
 $module_name          = 'WBCE Update-Assistent';
 $module_function      = 'tool';
 $module_icon          = 'fa  fa-cloud-download';
-$module_version       = '0.9.11';
+$module_version       = '0.9.13';
 $module_platform      = '1.4 | 1.5 | 1.6';
 $module_author        = 'WBCE Community';
 $module_license       = 'MIT License';

@@ -6,9 +6,9 @@
  *
  * @category    module
  * @package     wbce_updater
- * @version     0.9.11
+ * @version     0.9.14
  * @author      WBCE Community
- * @copyright   2025 WBCE Community
+ * @copyright   2026 WBCE Community
  * @license     MIT License
  */
 
@@ -29,16 +29,30 @@ if (!file_exists($configFile)) {
 require $configFile;
 require_once WB_PATH . '/framework/class.admin.php';
 
+// Load central configuration
+require_once __DIR__ . '/config_defaults.php';
+
 // Include compatibility checker
 require_once __DIR__ . '/compatibility_checker.php';
 
 // Security check: Admin only (without header output for AJAX)
 $admin = new admin('Admintools', 'admintools', false, false);
 
-// CSRF protection: Check FTAN token
+// CSRF protection: Check FTAN token (with fallback for older WBCE versions)
 // Token can be sent via POST parameter or custom header
 $ftan = $_POST['ftan'] ?? $_SERVER['HTTP_X_FTAN'] ?? '';
-if (empty($ftan) || !$admin->checkFTAN($ftan)) {
+
+// Try FTAN check first (modern WBCE versions)
+$ftan_valid = false;
+if (!empty($ftan) && method_exists($admin, 'checkFTAN')) {
+    $ftan_valid = $admin->checkFTAN($ftan);
+}
+
+// Fallback for WBCE 1.4.x: Check session-based authentication
+$session_valid = isset($_SESSION['USER_ID']) && $_SESSION['USER_ID'] &&
+                 isset($_SESSION['GROUP_ID']) && $_SESSION['GROUP_ID'] == 1;
+
+if (!$ftan_valid && !$session_valid) {
     ob_end_clean();
     http_response_code(403);
     header('Content-Type: application/json');

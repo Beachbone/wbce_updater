@@ -4,9 +4,9 @@
  *
  * @category    module
  * @package     wbce_updater
- * @version     0.9.11
+ * @version     0.9.14
  * @author      WBCE Community
- * @copyright   2025 WBCE Community
+ * @copyright   2026 WBCE Community
  * @license     MIT License
  */
 
@@ -139,6 +139,8 @@ Continue anyway?',
     'CHECKSUM_VALIDATED' => 'Download successfully validated',
     'ERROR_CHECKSUM_MISMATCH' => 'Checksum does not match! Download may be corrupted or manipulated.',
     'WARNING_NO_CHECKSUM' => 'No checksum available - download cannot be validated',
+    'WARNING_CHECKSUM_DISABLED' => 'WARNING: Checksum verification is disabled. The integrity of the downloaded file cannot be guaranteed.',
+    'WARNING_CHECKSUM_DISABLED_MANUAL' => 'NOTE: Automatic checksum verification is disabled. Please verify the checksum manually!',
     'CHECKSUM_INFO' => 'SHA256 Checksum',
     'CHECKSUM_VERIFY_INFO' => 'Compare this checksum with the official release checksum before proceeding.',
 ];

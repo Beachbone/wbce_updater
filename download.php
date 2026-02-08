@@ -6,15 +6,18 @@
  *
  * @category    module
  * @package     wbce_updater
- * @version     0.9.11
+ * @version     0.9.14
  * @author      WBCE Community
- * @copyright   2025 WBCE Community
+ * @copyright   2026 WBCE Community
  * @license     MIT License
  */
 
 // Include WBCE framework
 require '../../config.php';
 require_once WB_PATH . '/framework/class.admin.php';
+
+// Load central configuration
+require_once __DIR__ . '/config_defaults.php';
 
 // Include checksum validator
 require_once __DIR__ . '/checksum_validator.php';
@@ -100,7 +103,7 @@ try {
         'http' => [
             'method' => 'GET',
             'header' => 'User-Agent: WBCE-Updater/1.0',
-            'timeout' => 60,
+            'timeout' => WBCE_UPDATER_HTTP_TIMEOUT * 2, // Double timeout for large downloads
             'follow_location' => 1
         ]
     ]);
@@ -119,17 +122,22 @@ try {
         throw new Exception($LANG['ERROR_SAVE_FAILED']);
     }
 
-    // Validate checksum if provided
-    if (!empty($checksum)) {
-        $expectedHash = extractDigestHash($checksum); // "sha256:HASH" -> "HASH"
+    // Validate checksum if enabled and provided
+    if (WBCE_UPDATER_VERIFY_CHECKSUMS) {
+        if (!empty($checksum)) {
+            $expectedHash = extractDigestHash($checksum); // "sha256:HASH" -> "HASH"
 
-        if ($expectedHash && !validateFileChecksum($temp_zip_path, $expectedHash)) {
-            @unlink($temp_zip_path);
-            throw new Exception($LANG['ERROR_CHECKSUM_MISMATCH']);
+            if ($expectedHash && !validateFileChecksum($temp_zip_path, $expectedHash)) {
+                @unlink($temp_zip_path);
+                throw new Exception($LANG['ERROR_CHECKSUM_MISMATCH']);
+            }
+        } elseif (!empty($target_version)) {
+            // No checksum provided - add warning but don't block
+            $errors[] = $LANG['WARNING_NO_CHECKSUM'];
         }
-    } elseif (!empty($target_version)) {
-        // No checksum provided - add warning but don't block
-        $errors[] = $LANG['WARNING_NO_CHECKSUM'];
+    } else {
+        // Checksum verification is disabled - add security warning
+        $errors[] = $LANG['WARNING_CHECKSUM_DISABLED'];
     }
 
     // ZIP umpacken (nur wbce/ Ordner extrahieren)

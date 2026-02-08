@@ -4,9 +4,9 @@
  *
  * @category    module
  * @package     wbce_updater
- * @version     0.9.11
+ * @version     0.9.14
  * @author      WBCE Community
- * @copyright   2025 WBCE Community
+ * @copyright   2026 WBCE Community
  * @license     MIT License
  */
 
@@ -139,6 +139,8 @@ Trotzdem fortfahren?',
     'CHECKSUM_VALIDATED' => 'Download erfolgreich validiert',
     'ERROR_CHECKSUM_MISMATCH' => 'Checksumme stimmt nicht überein! Download möglicherweise beschädigt oder manipuliert.',
     'WARNING_NO_CHECKSUM' => 'Keine Checksumme verfügbar - Download kann nicht validiert werden',
+    'WARNING_CHECKSUM_DISABLED' => 'WARNUNG: Checksum-Verifizierung ist deaktiviert. Die Integrität der heruntergeladenen Datei kann nicht garantiert werden.',
+    'WARNING_CHECKSUM_DISABLED_MANUAL' => 'HINWEIS: Automatische Checksum-Verifizierung ist deaktiviert. Bitte prüfen Sie die Checksum manuell!',
     'CHECKSUM_INFO' => 'SHA256 Checksumme',
     'CHECKSUM_VERIFY_INFO' => 'Vergleichen Sie diese Checksumme mit der offiziellen Release-Checksumme, bevor Sie fortfahren.',
 ];

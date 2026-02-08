@@ -6,9 +6,9 @@
  *
  * @category    module
  * @package     wbce_updater
- * @version     0.9.11
+ * @version     0.9.14
  * @author      WBCE Community
- * @copyright   2025 WBCE Community
+ * @copyright   2026 WBCE Community
  * @license     MIT License
  */
 
@@ -17,13 +17,8 @@ if (!defined('WB_PATH')) {
     exit("Cannot access this file directly");
 }
 
-// Configuration
-if (!defined('WBCE_UPDATER_REQUIREMENTS_URL')) {
-    define('WBCE_UPDATER_REQUIREMENTS_URL', 'https://wbce.org/media/wbce_php_requirements.json');
-}
-if (!defined('WBCE_UPDATER_REQUIREMENTS_CACHE')) {
-    define('WBCE_UPDATER_REQUIREMENTS_CACHE', 3600); // 1 hour
-}
+// Load central configuration
+require_once __DIR__ . '/config_defaults.php';
 
 /**
  * Loads PHP requirements from URL with fallback to local file
@@ -33,7 +28,8 @@ if (!defined('WBCE_UPDATER_REQUIREMENTS_CACHE')) {
  */
 function loadPhpRequirements($forceLocal = false) {
     $localFile = __DIR__ . '/wbce_php_requirements.json';
-    $cacheFile = sys_get_temp_dir() . '/wbce_requirements_cache.json';
+    // Use unified cache location from central config
+    $cacheFile = WBCE_UPDATER_CACHE_DIR . '/.wbce_requirements_cache.json';
 
     // Check if cache is valid (not older than CACHE time)
     if (!$forceLocal && file_exists($cacheFile)) {
@@ -54,7 +50,7 @@ function loadPhpRequirements($forceLocal = false) {
         $context = stream_context_create([
             'http' => [
                 'method' => 'GET',
-                'timeout' => 10,
+                'timeout' => WBCE_UPDATER_HTTP_TIMEOUT,
                 'user_agent' => 'WBCE-Updater/1.0',
             ],
             'ssl' => [

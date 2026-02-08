@@ -6,9 +6,9 @@
  *
  * @category    module
  * @package     wbce_updater
- * @version     0.9.11
+ * @version     0.9.14
  * @author      WBCE Community
- * @copyright   2025 WBCE Community
+ * @copyright   2026 WBCE Community
  * @license     MIT License
  */
 
@@ -30,13 +30,27 @@ if (!file_exists($configFile)) {
 require $configFile;
 require_once WB_PATH . '/framework/class.admin.php';
 
+// Load central configuration
+require_once __DIR__ . '/config_defaults.php';
+
 // Security check: Admin only (without header output for AJAX)
 $admin = new admin('Admintools', 'admintools', false, false);
 
-// CSRF protection: Check FTAN token
+// CSRF protection: Check FTAN token (with fallback for older WBCE versions)
 // Token can be sent via POST parameter or custom header
 $ftan = $_POST['ftan'] ?? $_SERVER['HTTP_X_FTAN'] ?? '';
-if (empty($ftan) || !$admin->checkFTAN($ftan)) {
+
+// Try FTAN check first (modern WBCE versions)
+$ftan_valid = false;
+if (!empty($ftan) && method_exists($admin, 'checkFTAN')) {
+    $ftan_valid = $admin->checkFTAN($ftan);
+}
+
+// Fallback for WBCE 1.4.x: Check session-based authentication
+$session_valid = isset($_SESSION['USER_ID']) && $_SESSION['USER_ID'] &&
+                 isset($_SESSION['GROUP_ID']) && $_SESSION['GROUP_ID'] == 1;
+
+if (!$ftan_valid && !$session_valid) {
     ob_end_clean();
     http_response_code(403);
     header('Content-Type: application/json');
@@ -49,12 +63,12 @@ ob_end_clean();
 // Set JSON header early
 header('Content-Type: application/json');
 
-// GitHub API endpoint
-$github_api = 'https://api.github.com/repos/WBCE/WBCE_CMS/releases';
+// GitHub API endpoint (from central config)
+$github_api = WBCE_UPDATER_GITHUB_API;
 
-// Cache file path (15 minutes cache)
-$cache_file = WB_PATH . '/temp/.wbce_releases_cache.json';
-$cache_lifetime = 900; // 15 minutes
+// Cache file path (unified location)
+$cache_file = WBCE_UPDATER_CACHE_DIR . '/.wbce_releases_cache.json';
+$cache_lifetime = WBCE_UPDATER_RELEASES_CACHE;
 
 try {
     // Check if allow_url_fopen is enabled
@@ -76,12 +90,12 @@ try {
 
     // Fetch from GitHub if no valid cache
     if (!$use_cache) {
-        // Create context for API request with longer timeout
+        // Create context for API request with configurable timeout
         $context = stream_context_create([
             'http' => [
                 'method' => 'GET',
                 'header' => "User-Agent: WBCE-Updater/1.0\r\nAccept: application/vnd.github.v3+json",
-                'timeout' => 30,
+                'timeout' => WBCE_UPDATER_HTTP_TIMEOUT,
                 'ignore_errors' => true
             ],
             'ssl' => [
@@ -142,10 +156,11 @@ try {
                     $use_cache = true;
                     // Add warning that cache is used
                 } else {
-                    throw new Exception('GitHub API is currently unavailable (Timeout/Gateway error). Please try again later. Last error: ' . $last_error);
+                    // Generic error message to avoid information disclosure
+                    throw new Exception('GitHub API is currently unavailable. Please try again later.');
                 }
             } else {
-                throw new Exception('GitHub API is currently unavailable (Timeout/Gateway error). Please try again later. Last error: ' . $last_error);
+                throw new Exception('GitHub API is currently unavailable. Please try again later.');
             }
         }
     }

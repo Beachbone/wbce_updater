@@ -6,9 +6,9 @@
  *
  * @category    module
  * @package     wbce_updater
- * @version     0.9.11
+ * @version     0.9.14
  * @author      WBCE Community
- * @copyright   2025 WBCE Community
+ * @copyright   2026 WBCE Community
  * @license     MIT License
  */
 
@@ -17,10 +17,8 @@ if (!defined('WB_PATH')) {
     exit("Cannot access this file directly");
 }
 
-// Configuration
-if (!defined('WBCE_UPDATER_CHECKSUMS_URL')) {
-    define('WBCE_UPDATER_CHECKSUMS_URL', 'https://wbce.org/media/checksums.json');
-}
+// Load central configuration
+require_once __DIR__ . '/config_defaults.php';
 
 /**
  * Extracts checksum hash from GitHub digest field
@@ -60,7 +58,7 @@ function loadChecksumsFromUrl($url) {
     $context = stream_context_create([
         'http' => [
             'method' => 'GET',
-            'timeout' => 10,
+            'timeout' => WBCE_UPDATER_HTTP_TIMEOUT,
             'user_agent' => 'WBCE-Updater/1.0',
         ],
         'ssl' => [

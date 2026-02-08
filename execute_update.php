@@ -7,7 +7,7 @@
  *
  * @category    module
  * @package     wbce_updater
- * @version     0.9.11
+ * @version     0.9.14
  * @author      WBCE Community
  * @copyright   2026 WBCE Community
  * @license     MIT License
@@ -20,6 +20,9 @@ if (!file_exists($configFile)) {
 }
 require $configFile;
 require_once WB_PATH . '/framework/class.admin.php';
+
+// Load central configuration
+require_once __DIR__ . '/config_defaults.php';
 
 // Include compatibility checker for dynamic PHP version check
 require_once __DIR__ . '/compatibility_checker.php';
@@ -249,7 +252,9 @@ if ($success) {
 
             echo '<span style="color: #28a745;">✅ ' . $numFiles . ' Dateien sicher nach ' . htmlspecialchars($path) . ' entpackt</span>';
         } else {
-            throw new Exception('ZIP-Archiv konnte nicht geöffnet werden (Error Code: ' . $res . ')');
+            // Generic error message to avoid information disclosure
+            // Detailed error codes are logged but not displayed
+            throw new Exception('ZIP-Archiv konnte nicht geöffnet werden. Bitte überprüfen Sie die Datei.');
         }
     } catch (Exception $e) {
         $success = false;
