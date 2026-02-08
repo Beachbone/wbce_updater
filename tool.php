@@ -6,7 +6,7 @@
  *
  * @category    module
  * @package     wbce_updater
- * @version     0.9.14
+ * @version     0.9.16
  * @author      WBCE Community
  * @copyright   2026 WBCE Community
  * @license     MIT License
@@ -253,12 +253,8 @@ if (typeof ADMIN_URL === 'undefined') {
                 button.disabled = !checkbox.checked;
             });
 
-            // Also update upload button state
-            const fileInput = document.getElementById('zip_file');
-            const uploadButton = document.getElementById('upload-button');
-            if (fileInput && uploadButton) {
-                uploadButton.disabled = !(checkbox.checked && fileInput.files.length > 0);
-            }
+            // Upload button is handled separately by enableUploadButton()
+            // It only depends on file selection, not checkbox state
         }
 
         /**
@@ -475,18 +471,30 @@ if (typeof ADMIN_URL === 'undefined') {
             // Separate recommended and other updates
             let recommendedUpdate = null;
             const otherUpdates = [];
+            const patchUpdates = [];
 
+            // Calculate risk levels and collect patch updates
             allUpdates.forEach(update => {
                 const riskLevel = calculateRiskLevel(currentVersion, update.version);
                 update.riskLevel = riskLevel;
 
-                // First visible patch update is recommended
-                if (riskLevel === 'patch' && recommendedUpdate === null && !update.hidden) {
-                    recommendedUpdate = update;
+                // Collect all visible patch updates
+                if (riskLevel === 'patch' && !update.hidden) {
+                    patchUpdates.push(update);
                 } else {
                     otherUpdates.push(update);
                 }
             });
+
+            // Select HIGHEST (last in ascending-sorted array) patch update as recommended
+            if (patchUpdates.length > 0) {
+                recommendedUpdate = patchUpdates[patchUpdates.length - 1];
+
+                // All other patch updates go to "other updates"
+                for (let i = 0; i < patchUpdates.length - 1; i++) {
+                    otherUpdates.push(patchUpdates[i]);
+                }
+            }
 
             // Display recommended update
             if (recommendedUpdate) {
@@ -684,6 +692,9 @@ if (typeof ADMIN_URL === 'undefined') {
             document.getElementById('form_enable_maintenance').value =
                 document.getElementById('enable_maintenance').checked ? '1' : '0';
 
+            // Show loading spinner
+            showLoadingSpinner();
+
             document.getElementById('update-form').submit();
         }
 
@@ -724,10 +735,9 @@ if (typeof ADMIN_URL === 'undefined') {
         function enableUploadButton() {
             const fileInput = document.getElementById('zip_file');
             const uploadButton = document.getElementById('upload-button');
-            const backupCheckbox = document.getElementById('backup_confirmed');
 
-            // Enable upload button only if file is selected AND backup is confirmed
-            if (fileInput.files.length > 0 && backupCheckbox.checked) {
+            // Enable upload button if file is selected (backup check happens on submit)
+            if (fileInput.files.length > 0) {
                 uploadButton.disabled = false;
             } else {
                 uploadButton.disabled = true;
@@ -783,10 +793,34 @@ if (typeof ADMIN_URL === 'undefined') {
                 return false;
             }
 
+            // Show loading spinner
+            showLoadingSpinner();
+
+            // Also disable button as visual feedback
             document.getElementById('upload-button').disabled = true;
             document.getElementById('upload-button').textContent = '⏳ <?php echo $LANG['LOADING']; ?>...';
 
             return true;
+        }
+
+        /**
+         * Show loading spinner overlay
+         */
+        function showLoadingSpinner() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.classList.add('active');
+            }
+        }
+
+        /**
+         * Hide loading spinner overlay
+         */
+        function hideLoadingSpinner() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
         }
 
         // Auto-load updates on page load
@@ -794,6 +828,17 @@ if (typeof ADMIN_URL === 'undefined') {
             loadAvailableUpdates();
         });
     </script>
+
+    <!-- Loading Spinner Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div class="loading-text"><?php echo $LANG['LOADING_DOWNLOAD']; ?>...</div>
+            <div class="loading-subtext">
+                <?php echo $LANG['DOWNLOAD_PLEASE_WAIT']; ?>
+            </div>
+        </div>
+    </div>
 </div> <!-- end wbce-updater-container -->
 <?php
 // Footer wird vom Framework ausgegeben - hier NICHT $admin->print_footer() aufrufen!

@@ -4,7 +4,7 @@
  *
  * @category    module
  * @package     wbce_updater
- * @version     0.9.14
+ * @version     0.9.16
  * @author      WBCE Community
  * @copyright   2026 WBCE Community
  * @license     MIT License
@@ -565,4 +565,59 @@ input[type="file"].file-input {
     font-size: 12px;
     word-break: break-all;
     margin: 10px 0;
+}
+
+/* Loading Spinner Overlay */
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading-overlay.active {
+    display: flex;
+}
+
+.loading-content {
+    text-align: center;
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 20px;
+    border: 6px solid #e2e8f0;
+    border-top-color: #3490dc;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-size: 18px;
+    font-weight: 500;
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+.loading-subtext {
+    font-size: 14px;
+    color: #718096;
+    line-height: 1.5;
 }

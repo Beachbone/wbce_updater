@@ -4,7 +4,7 @@
  *
  * @category    module
  * @package     wbce_updater
- * @version     0.9.14
+ * @version     0.9.16
  * @author      WBCE Community
  * @copyright   2026 WBCE Community
  * @license     MIT License
@@ -34,6 +34,8 @@ $LANG = [
     'OTHER_UPDATES' => 'Other Available Updates',
     'CHECK_UPDATES' => 'Check for Updates',
     'LOADING' => 'Loading Updates',
+    'LOADING_DOWNLOAD' => 'Downloading update',
+    'DOWNLOAD_PLEASE_WAIT' => 'Please wait, this may take several minutes.',
     'NO_UPDATES_AVAILABLE' => 'No updates available',
     'UP_TO_DATE' => 'Your WBCE installation is up to date.',
     'SHOW_ADDITIONAL_UPDATES' => 'Show additional versions',

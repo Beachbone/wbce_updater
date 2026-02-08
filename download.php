@@ -6,7 +6,7 @@
  *
  * @category    module
  * @package     wbce_updater
- * @version     0.9.14
+ * @version     0.9.16
  * @author      WBCE Community
  * @copyright   2026 WBCE Community
  * @license     MIT License
@@ -135,10 +135,8 @@ try {
             // No checksum provided - add warning but don't block
             $errors[] = $LANG['WARNING_NO_CHECKSUM'];
         }
-    } else {
-        // Checksum verification is disabled - add security warning
-        $errors[] = $LANG['WARNING_CHECKSUM_DISABLED'];
     }
+    // Note: No warning when checksum verification is disabled (default)
 
     // ZIP umpacken (nur wbce/ Ordner extrahieren)
     require_once __DIR__ . '/repack_helper.php';
