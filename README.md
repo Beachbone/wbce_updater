@@ -25,7 +25,7 @@ Ein intelligenter Update-Assistent für WBCE CMS mit PHP-Kompatibilitätsprüfun
 - **SHA256 Checksummen**: Optionale Validierung (siehe Konfiguration)
 
 ### ✅ PHP-Kompatibilitätsprüfung
-- **Dynamische Prüfung**: Lädt Requirements von GitHub mit Fallback auf lokale Datei
+- **Dynamische Prüfung**: Lädt Requirements von wbce.org/media mit Fallback auf lokale Datei
 - **Pre-Update-Warnung**: Warnt vor inkompatiblen PHP-Versionen (nicht blockierend)
 - **EOL-Warnungen**: Hinweise für veraltete PHP-Versionen
 - **Visuelle Badges**: Kompatibilitätsstatus direkt in der Update-Liste
@@ -78,6 +78,10 @@ Zentrale Konfiguration in `config_defaults.php`:
 ```php
 // GitHub API
 define('WBCE_UPDATER_GITHUB_API', 'https://api.github.com/repos/WBCE/WBCE_CMS/releases');
+
+// Requirements & Checksums URLs
+define('WBCE_UPDATER_REQUIREMENTS_URL', 'https://wbce.org/media/wbce_php_requirements.json');
+define('WBCE_UPDATER_CHECKSUMS_URL', 'https://wbce.org/media/checksums.json');
 
 // Cache & Timeouts
 define('WBCE_UPDATER_CACHE_DIR', WB_PATH . '/temp');
