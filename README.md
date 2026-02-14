@@ -2,7 +2,7 @@
 
 Ein intelligenter Update-Assistent für WBCE CMS mit PHP-Kompatibilitätsprüfung, Sicherheitsfeatures und verbesserter Benutzerführung.
 
-**Version:** 0.9.16
+**Version:** 1.0.0
 **Kompatibel mit:** WBCE 1.4.x | 1.5.x | 1.6.x
 
 ## Features
@@ -151,7 +151,7 @@ Beiträge sind willkommen! Bitte beachten Sie:
 
 ## Changelog
 
-### Version 0.9.16
+### Version 1.0.0
 - Loading Spinner für Downloads/Uploads
 - Höchstes Patch-Update wird als empfohlen angezeigt
 - Upload-Button UX verbessert
