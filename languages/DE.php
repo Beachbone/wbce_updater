@@ -19,6 +19,7 @@ $LANG = [
     // General
     'TOOL_NAME' => 'WBCE Update-Assistent',
     'CURRENT_VERSION' => 'Installierte Version',
+    'ADMIN_DIR_CUSTOM_DETECTED' => 'Individuelles Admin-Verzeichnis erkannt: "%s". Das Update-Paket wird beim Download/Upload automatisch entsprechend angepasst.',
 
     // Backup Section
     'BACKUP_REQUIRED' => 'Backup erforderlich!',
@@ -161,6 +162,7 @@ Trotzdem fortfahren?',
     'CHECKSUM_VALIDATED' => 'Download erfolgreich validiert',
     'ERROR_CHECKSUM_MISMATCH' => 'Checksumme stimmt nicht überein! Download möglicherweise beschädigt oder manipuliert.',
     'WARNING_NO_CHECKSUM' => 'Keine Checksumme verfügbar - Download kann nicht validiert werden',
+    'INFO_ADMIN_DIR_ADJUSTED' => 'Individuelles Admin-Verzeichnis erkannt: Update-Paket wurde automatisch für "%s" angepasst (%d Dateien).',
     'WARNING_CHECKSUM_DISABLED' => 'WARNUNG: Checksum-Verifizierung ist deaktiviert. Die Integrität der heruntergeladenen Datei kann nicht garantiert werden.',
     'WARNING_CHECKSUM_DISABLED_MANUAL' => 'HINWEIS: Automatische Checksum-Verifizierung ist deaktiviert. Bitte prüfen Sie die Checksum manuell!',
     'CHECKSUM_INFO' => 'SHA256 Checksumme',

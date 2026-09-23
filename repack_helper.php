@@ -209,6 +209,60 @@ function repackZip($sourceZip, $targetZip, $subPath = null, $targetFolderName = 
 }
 
 /**
+ * Detects an individually renamed admin directory and renames the
+ * "admin/" folder in the already packed update ZIP accordingly.
+ *
+ * WBCE release packages always contain an "admin/" folder. Without this
+ * adjustment, updating with a renamed admin directory would just create a
+ * new, unused "admin/" folder and leave the actually active directory unpatched.
+ *
+ * @param string $zipPath Path to the already packed wbceup.zip (modified in-place)
+ * @return array ['renamed' => int, 'admin_dir' => string]
+ */
+function adjustAdminFolderName($zipPath) {
+    $result = ['renamed' => 0, 'admin_dir' => 'admin'];
+
+    if (!defined('WB_URL') || !defined('ADMIN_URL')) {
+        return $result;
+    }
+
+    // Derive the physical name of the active admin directory from ADMIN_URL
+    $adminDirName = trim(str_replace(rtrim(WB_URL, '/'), '', ADMIN_URL), '/');
+
+    // Only act if clearly detected, different from the default, and safe
+    // (no path separators, dots, etc.)
+    if ($adminDirName === '' || $adminDirName === 'admin' || !preg_match('/^[A-Za-z0-9_-]+$/', $adminDirName)) {
+        return $result;
+    }
+
+    $result['admin_dir'] = $adminDirName;
+
+    $zip = new ZipArchive();
+    if ($zip->open($zipPath) !== TRUE) {
+        return $result;
+    }
+
+    $oldPrefix = 'admin/';
+    $newPrefix = $adminDirName . '/';
+    $renamed = 0;
+
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+        $name = $zip->getNameIndex($i);
+        if ($name !== false && strpos($name, $oldPrefix) === 0) {
+            $newName = $newPrefix . substr($name, strlen($oldPrefix));
+            if ($zip->renameIndex($i, $newName)) {
+                $renamed++;
+            }
+        }
+    }
+
+    $zip->close();
+    $result['renamed'] = $renamed;
+
+    return $result;
+}
+
+/**
  * Debug-Funktion: Zeigt die Struktur eines ZIPs
  *
  * @param string $zipPath Pfad zur ZIP-Datei

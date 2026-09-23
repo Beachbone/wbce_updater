@@ -19,6 +19,7 @@ $LANG = [
     // General
     'TOOL_NAME' => 'WBCE Update Assistant',
     'CURRENT_VERSION' => 'Installed Version',
+    'ADMIN_DIR_CUSTOM_DETECTED' => 'Custom admin directory detected: "%s". The update package will be automatically remapped to it on download/upload.',
 
     // Backup Section
     'BACKUP_REQUIRED' => 'Backup Required!',
@@ -161,6 +162,7 @@ Continue anyway?',
     'CHECKSUM_VALIDATED' => 'Download successfully validated',
     'ERROR_CHECKSUM_MISMATCH' => 'Checksum does not match! Download may be corrupted or manipulated.',
     'WARNING_NO_CHECKSUM' => 'No checksum available - download cannot be validated',
+    'INFO_ADMIN_DIR_ADJUSTED' => 'Custom admin directory detected: update package was automatically remapped to "%s" (%d files).',
     'WARNING_CHECKSUM_DISABLED' => 'WARNING: Checksum verification is disabled. The integrity of the downloaded file cannot be guaranteed.',
     'WARNING_CHECKSUM_DISABLED_MANUAL' => 'NOTE: Automatic checksum verification is disabled. Please verify the checksum manually!',
     'CHECKSUM_INFO' => 'SHA256 Checksum',

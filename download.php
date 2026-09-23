@@ -173,6 +173,16 @@ try {
         throw new Exception($LANG['ERROR_REPACK_FAILED'] . ': ' . $repack_result['message']);
     }
 
+    // Account for a renamed admin directory in the update package
+    $admin_folder_adjust = adjustAdminFolderName($final_zip_path);
+    if ($admin_folder_adjust['renamed'] > 0) {
+        $errors[] = sprintf(
+            $LANG['INFO_ADMIN_DIR_ADJUSTED'],
+            htmlspecialchars($admin_folder_adjust['admin_dir']),
+            $admin_folder_adjust['renamed']
+        );
+    }
+
 } catch (Exception $e) {
     $errors[] = $e->getMessage();
     $success = false;

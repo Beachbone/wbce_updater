@@ -60,6 +60,11 @@ if (file_exists(__DIR__ . '/user_config.php')) {
     require_once __DIR__ . '/user_config.php';
 }
 
+// Detect a custom (renamed) admin directory - the update package will be
+// automatically remapped to it on download/upload (see repack_helper.php)
+$admin_dir_name = trim(str_replace(rtrim(WB_URL, '/'), '', ADMIN_URL), '/');
+$admin_dir_is_custom = ($admin_dir_name !== '' && $admin_dir_name !== 'admin' && preg_match('/^[A-Za-z0-9_-]+$/', $admin_dir_name));
+
 // Tool disabled check
 if ($wbce_updater_disabled) {
     echo '<div class="alert-warning" style="padding:20px;">';
@@ -109,6 +114,12 @@ if (typeof ADMIN_URL === 'undefined') {
 <div class="wbce-updater-container">
         <h1><?php echo htmlspecialchars($LANG['TOOL_NAME']); ?></h1>
         <p class="version-display"><strong><?php echo htmlspecialchars($LANG['CURRENT_VERSION']); ?>:</strong> <?php echo htmlspecialchars($current_version); ?></p>
+
+        <?php if ($admin_dir_is_custom): ?>
+        <div class="alert-info" style="margin: 10px 0 20px; padding: 10px 14px; background: #e7f3ff; border: 1px solid #b8daff; border-radius: 4px; font-size: 13px;">
+            ℹ️ <?php echo sprintf(htmlspecialchars($LANG['ADMIN_DIR_CUSTOM_DETECTED']), htmlspecialchars($admin_dir_name)); ?>
+        </div>
+        <?php endif; ?>
 
         <!-- Backup Warning Section -->
         <div class="backup-section">

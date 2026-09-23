@@ -214,6 +214,7 @@ try {
     }
 
     $final_zip_path = WB_PATH . '/wbceup.zip';
+    require_once __DIR__ . '/repack_helper.php';
 
     if ($has_wbce_marker) {
         // ZIP is already in correct format - just copy it
@@ -228,7 +229,6 @@ try {
     } else {
         // ZIP needs repacking (probably GitHub format)
 
-        require_once __DIR__ . '/repack_helper.php';
         $repack_result = repackZip($temp_zip_path, $final_zip_path, null, 'wbce');
 
 
@@ -239,6 +239,16 @@ try {
             throw new Exception($LANG['ERROR_REPACK_FAILED'] . ': ' . $repack_result['message']);
         }
 
+    }
+
+    // Account for a renamed admin directory in the update package
+    $admin_folder_adjust = adjustAdminFolderName($final_zip_path);
+    if ($admin_folder_adjust['renamed'] > 0) {
+        $errors[] = sprintf(
+            $LANG['INFO_ADMIN_DIR_ADJUSTED'],
+            htmlspecialchars($admin_folder_adjust['admin_dir']),
+            $admin_folder_adjust['renamed']
+        );
     }
 
 
