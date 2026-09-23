@@ -2,7 +2,7 @@
 /**
  * WBCE Update-Assistent - Upload Handler
  *
- * Verarbeitet manuell hochgeladene WBCE ZIP-Dateien und bereitet Update vor
+ * Processes manually uploaded WBCE ZIP files and prepares the update
  *
  * @category    module
  * @package     wbce_updater
@@ -56,7 +56,7 @@ $backup_confirmed = isset($_POST['backup_confirmed_upload']) && $_POST['backup_c
 $enable_maintenance = isset($_POST['enable_maintenance_upload']) && $_POST['enable_maintenance_upload'] === '1';
 $target_version = trim($_POST['target_version_upload'] ?? '');
 if (!empty($target_version) && !preg_match('/^v?\d+\.\d+(\.\d+)?$/i', $target_version)) {
-    $target_version = ''; // Ungültiges Format ignorieren
+    $target_version = ''; // Ignore invalid format
 }
 
 // Validate backup confirmation

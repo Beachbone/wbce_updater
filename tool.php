@@ -2,7 +2,7 @@
 /**
  * WBCE Update-Assistent - Main Interface
  *
- * Hauptoberfläche für den WBCE Update-Assistenten
+ * Main interface for the WBCE update assistant
  *
  * @category    module
  * @package     wbce_updater
@@ -11,11 +11,11 @@
  * @copyright   2026 WBCE Community
  * @license     MIT License
  *
- * WICHTIG: Diese Datei wird vom WBCE Admin-Tools Framework eingebunden.
- * Folgendes ist bereits verfügbar:
- * - $admin (Admin-Objekt, Header bereits ausgegeben)
+ * IMPORTANT: This file is included by the WBCE admin tools framework.
+ * The following are already available:
+ * - $admin (admin object, header already printed)
  * - $modulePath, $languagePath, $returnUrl, $toolDir, $toolName
- * - config.php, framework-Klassen, Sprachdateien
+ * - config.php, framework classes, language files
  */
 
 defined('WB_PATH') or die("This file can't be accessed directly!");
@@ -733,10 +733,10 @@ if (typeof ADMIN_URL === 'undefined') {
         /**
          * Calculate risk level based on version comparison
          *
-         * Risikostufen:
-         * - major (rot): Major-Version unterschiedlich ODER Minor-Differenz > 1
-         * - minor (gelb): Minor-Differenz == 1
-         * - patch (grün): Nur Patch-Version unterschiedlich
+         * Risk levels:
+         * - major (red): major version differs OR minor difference > 1
+         * - minor (yellow): minor difference == 1
+         * - patch (green): only the patch version differs
          */
         function calculateRiskLevel(current, target) {
             const c = current.split('.').map(Number);
@@ -752,13 +752,13 @@ if (typeof ADMIN_URL === 'undefined') {
             // Minor version difference
             const minorDiff = t[1] - c[1];
 
-            // Minor-Sprung > 1 (z.B. 1.5 → 1.7) = major risk (rot)
+            // Minor jump > 1 (e.g. 1.5 → 1.7) = major risk (red)
             if (minorDiff > 1) return 'major';
 
-            // Minor-Sprung == 1 (z.B. 1.5 → 1.6) = minor risk (gelb)
+            // Minor jump == 1 (e.g. 1.5 → 1.6) = minor risk (yellow)
             if (minorDiff === 1) return 'minor';
 
-            // Patch version change (1.6.3 → 1.6.5) = patch risk (grün)
+            // Patch version change (1.6.3 → 1.6.5) = patch risk (green)
             return 'patch';
         }
 
@@ -974,4 +974,4 @@ if (typeof ADMIN_URL === 'undefined') {
     </div>
 </div> <!-- end wbce-updater-container -->
 <?php
-// Footer wird vom Framework ausgegeben - hier NICHT $admin->print_footer() aufrufen!
+// Footer is printed by the framework - do NOT call $admin->print_footer() here!

@@ -180,7 +180,7 @@ Trotzdem fortfahren?',
     'ERROR_INVALID_MIME_TYPE' => 'Ungültiger Dateityp. Nur ZIP-Dateien erlaubt. Erkannter Typ: %s',
     'ERROR_FILE_TOO_LARGE_MB' => 'Datei zu groß. Maximal erlaubt: %s MB',
 
-    // Execute Update – Schrittbezeichnungen
+    // Execute Update – Step labels
     'EXEC_TITLE'              => 'Update-Durchführung',
     'EXEC_STEP1'              => 'Schritt 1: PHP-Kompatibilität prüfen...',
     'EXEC_STEP2'              => 'Schritt 2: Update-Paket prüfen...',
@@ -188,7 +188,7 @@ Trotzdem fortfahren?',
     'EXEC_STEP4'              => 'Schritt 4: WBCE Update-Script prüfen...',
     'EXEC_STEP5'              => 'Schritt 5: Cleanup...',
 
-    // Execute Update – PHP-Kompatibilität
+    // Execute Update – PHP compatibility
     'EXEC_PHP_SKIPPED'        => 'Keine Zielversion angegeben, PHP-Check übersprungen',
     'EXEC_PHP_CANNOT_CHECK'   => 'PHP-Kompatibilität kann nicht geprüft werden: %s – Update wird fortgesetzt.',
     'EXEC_PHP_INCOMPAT'       => 'WARNUNG: PHP-Inkompatibilität erkannt!',
@@ -199,7 +199,7 @@ Trotzdem fortfahren?',
     'EXEC_PHP_COMPATIBLE_MSG' => 'PHP %s ist kompatibel mit WBCE %s',
     'EXEC_PHP_COMPAT_WARN'    => 'PHP %s ist nicht kompatibel mit WBCE %s (benötigt: %s – %s). Bitte PHP-Version nach dem Update ändern!',
 
-    // Execute Update – Paket & Script
+    // Execute Update – Package & Script
     'EXEC_ZIP_FOUND'          => 'wbceup.zip gefunden (%s MB)',
     'EXEC_ZIP_MISSING'        => 'Update-Paket (wbceup.zip) nicht gefunden!',
     'EXEC_SCRIPT_FOUND'       => 'install/update.php gefunden',
@@ -216,7 +216,7 @@ Trotzdem fortfahren?',
     'EXEC_TEMPLATE_PROTECTED'         => 'Aktives Standardtemplate "%s" wurde vom Update ausgeschlossen (%d Dateien übersprungen) - lokale Anpassungen bleiben erhalten.',
     'EXEC_TEMPLATE_PROTECTED_WARNING' => 'Das aktive Standardtemplate/-theme "%s" wurde beim Update NICHT aktualisiert, um lokale Anpassungen zu schützen. Prüfen Sie ggf. manuell im WBCE-Changelog, ob es sicherheitsrelevante Änderungen an diesem Template gibt.',
 
-    // Execute Update – Ergebnisseite
+    // Execute Update – Result page
     'EXEC_SUCCESS_TITLE'       => 'Update-Paket erfolgreich entpackt!',
     'EXEC_WARNINGS_TITLE'      => 'Wichtige Warnungen:',
     'EXEC_NEXT_STEP_TITLE'     => 'Nächster Schritt:',

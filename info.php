@@ -2,7 +2,7 @@
 /**
  * WBCE Update-Assistent
  *
- * Intelligenter Update-Helfer für WBCE CMS
+ * Intelligent update helper for WBCE CMS
  *
  * @category    module
  * @package     wbce_updater

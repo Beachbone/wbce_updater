@@ -108,12 +108,12 @@ if (!defined('WBCE_UPDATER_DEBUG')) {
 // ============================================================================
 // USER CONFIG OVERRIDES  (user_config.php)
 // ============================================================================
-// user_config.php wird NICHT in Release-ZIPs mitgeliefert und überlebt Updates.
-// Sie muss manuell aus user_config.default.php kopiert werden.
+// user_config.php is NOT included in release ZIPs and therefore survives updates.
+// It must be manually copied from user_config.default.php.
 //
-// Konstanten oder Variablen aus dieser Datei, die dauerhaft über Updates hinweg
-// angepasst bleiben sollen, müssen in die user_config.php verschoben werden –
-// denn diese Datei (config_defaults.php) wird bei jedem Update überschrieben.
+// Constants or variables from this file that should stay changed across
+// updates must be moved to user_config.php - this file (config_defaults.php)
+// gets overwritten on every update.
 $wbce_updater_custom_source_url = '';
 $wbce_updater_disabled = false;
 if (file_exists(__DIR__ . '/user_config.php')) {

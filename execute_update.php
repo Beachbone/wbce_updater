@@ -2,8 +2,8 @@
 /**
  * WBCE Updater - Execute Update
  *
- * Entpackt das Update-Paket und startet den WBCE Update-Prozess
- * Ersetzt das externe wbce_update_unzip.php Script
+ * Unpacks the update package and starts the WBCE update process.
+ * Replaces the external wbce_update_unzip.php script.
  *
  * @category    module
  * @package     wbce_updater

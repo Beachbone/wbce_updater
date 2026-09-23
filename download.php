@@ -2,7 +2,7 @@
 /**
  * WBCE Update-Assistent - Download Handler
  *
- * Lädt Update-Paket herunter und bereitet Update vor
+ * Downloads the update package and prepares the update
  *
  * @category    module
  * @package     wbce_updater
@@ -130,13 +130,13 @@ try {
         throw new Exception($LANG['ERROR_DOWNLOAD_FAILED'] . ': Leere oder fehlgeschlagene Antwort vom Server');
     }
 
-    // ZIP-Signatur prüfen bevor die Datei geschrieben wird
+    // Check the ZIP signature before writing the file
     if (strlen($zip_content) < 4 || substr($zip_content, 0, 2) !== 'PK') {
         throw new Exception($LANG['ERROR_DOWNLOAD_FAILED'] . ': Keine gültige ZIP-Datei empfangen. ' .
             'Serverantwort beginnt mit: ' . htmlspecialchars(substr($zip_content, 0, 200)));
     }
 
-    // Temporäres ZIP speichern
+    // Save the temporary ZIP
     $temp_zip_path = WB_PATH . '/temp_download.zip';
     $bytes_written = file_put_contents($temp_zip_path, $zip_content);
 
@@ -160,13 +160,13 @@ try {
     }
     // Note: No warning when checksum verification is disabled (default)
 
-    // ZIP umpacken (nur wbce/ Ordner extrahieren)
+    // Repack the ZIP (extract only the wbce/ folder)
     require_once __DIR__ . '/repack_helper.php';
 
     $final_zip_path = WB_PATH . '/wbceup.zip';
     $repack_result = repackZip($temp_zip_path, $final_zip_path, null, 'wbce');
 
-    // Temporäre Datei löschen
+    // Delete the temporary file
     @unlink($temp_zip_path);
 
     if (!$repack_result['success']) {
