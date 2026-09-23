@@ -74,6 +74,19 @@ if ($wbce_updater_disabled) {
     return;
 }
 
+// ZipArchive is a hard requirement for both update paths.
+// allow_url_fopen is only needed for the GitHub/custom-source download - manual upload works without it.
+$env_has_zip = class_exists('ZipArchive');
+$env_has_url_fopen = (bool) ini_get('allow_url_fopen');
+
+if (!$env_has_zip) {
+    echo '<div class="alert-danger" style="padding:20px;">';
+    echo '<strong>' . htmlspecialchars($LANG['ENV_ZIP_MISSING_TITLE']) . '</strong><br>';
+    echo htmlspecialchars($LANG['ENV_ZIP_MISSING_INFO']);
+    echo '</div>';
+    return;
+}
+
 // Backup detection: scan WB_PATH/backups for recent ZIP files
 $backup_found = false;
 $backup_found_text = '';
@@ -164,6 +177,7 @@ if (typeof ADMIN_URL === 'undefined') {
         <div class="updates-section">
             <h3 class="section-title-gray"><?php echo $LANG['AVAILABLE_UPDATES']; ?></h3>
 
+            <?php if ($env_has_url_fopen): ?>
             <div class="button-row">
                 <button type="button" class="btn-primary" onclick="loadAvailableUpdates()">
                     🔍 <?php echo $LANG['CHECK_UPDATES']; ?>
@@ -179,6 +193,15 @@ if (typeof ADMIN_URL === 'undefined') {
             </div>
 
             <div id="updates-container"></div>
+            <?php else: ?>
+            <div class="alert-warning" style="padding:15px; background:#fff3cd; border:1px solid #ffc107; border-radius:4px;">
+                <p style="margin:0 0 10px 0;"><strong>⚠️ <?php echo htmlspecialchars($LANG['ENV_URL_FOPEN_DISABLED_TITLE']); ?></strong></p>
+                <p style="margin:0 0 10px 0;"><?php echo htmlspecialchars($LANG['ENV_URL_FOPEN_DISABLED_INFO']); ?></p>
+                <button type="button" class="btn-secondary" onclick="jumpToUpload()">
+                    📤 <?php echo $LANG['JUMP_TO_UPLOAD']; ?>
+                </button>
+            </div>
+            <?php endif; ?>
         </div>
 
         <!-- Manual Upload Section -->
@@ -281,12 +304,16 @@ if (typeof ADMIN_URL === 'undefined') {
                 <strong><?php echo htmlspecialchars($LANG['CUSTOM_SOURCE_CONFIGURED']); ?></strong><br>
                 <code style="word-break:break-all;"><?php echo htmlspecialchars($wbce_updater_custom_source_url); ?></code>
             </div>
+            <?php if ($env_has_url_fopen): ?>
             <button type="button"
                     class="btn-download download-button"
                     onclick="prepareCustomSourceUpdate()"
                     disabled>
                 📥 <?php echo htmlspecialchars($LANG['CUSTOM_SOURCE_BUTTON']); ?>
             </button>
+            <?php else: ?>
+            <p style="color:#856404; font-size:13px; margin:0;">⚠️ <?php echo htmlspecialchars($LANG['ENV_URL_FOPEN_DISABLED_SHORT']); ?></p>
+            <?php endif; ?>
         </div>
         <?php endif; ?>
 

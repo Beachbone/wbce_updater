@@ -21,6 +21,13 @@ $LANG = [
     'CURRENT_VERSION' => 'Installierte Version',
     'ADMIN_DIR_CUSTOM_DETECTED' => 'Individuelles Admin-Verzeichnis erkannt: "%s". Das Update-Paket wird beim Download/Upload automatisch entsprechend angepasst.',
 
+    // Environment Capability Checks
+    'ENV_ZIP_MISSING_TITLE' => 'PHP-Erweiterung "ZipArchive" fehlt',
+    'ENV_ZIP_MISSING_INFO' => 'Der WBCE Update-Assistent benötigt die PHP-Erweiterung "ZipArchive", um Update-Pakete zu entpacken. Diese ist auf Ihrem Server nicht verfügbar. Bitte bitten Sie Ihren Hoster, die Erweiterung "zip" (php-zip) zu aktivieren, oder führen Sie das Update manuell über den WBCE-Installer durch.',
+    'ENV_URL_FOPEN_DISABLED_TITLE' => 'Automatischer Update-Download nicht verfügbar',
+    'ENV_URL_FOPEN_DISABLED_INFO' => 'Auf diesem Server ist die PHP-Einstellung "allow_url_fopen" deaktiviert (z.B. bei manchen Hostern wie Hosteurope üblich). Dadurch kann der Update-Assistent Updates nicht automatisch von GitHub herunterladen. Bitte laden Sie das gewünschte Release-ZIP manuell von github.com/WBCE/WBCE_CMS/releases herunter und nutzen Sie den manuellen Upload unten.',
+    'ENV_URL_FOPEN_DISABLED_SHORT' => '"allow_url_fopen" ist auf diesem Server deaktiviert - eigene Update-Quelle kann nicht automatisch heruntergeladen werden. Bitte manuell laden und über den Upload-Bereich einspielen.',
+
     // Backup Section
     'BACKUP_REQUIRED' => 'Backup erforderlich!',
     'BACKUP_BUTTON' => 'Backup Plus öffnen (neues Fenster)',
