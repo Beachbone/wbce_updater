@@ -87,6 +87,16 @@ if (!defined('WBCE_UPDATER_VERIFY_CHECKSUMS')) {
 }
 
 // ============================================================================
+// TEMPLATE PROTECTION
+// ============================================================================
+
+// Standard templates/themes shipped with the WBCE core. If one of these is
+// currently active, it will not be overwritten on update (see execute_update.php).
+if (!defined('WBCE_UPDATER_STANDARD_TEMPLATES')) {
+    define('WBCE_UPDATER_STANDARD_TEMPLATES', 'argos_theme_reloaded,wbce_flat_theme,wbcetik,wbcezon,whiteboard,systemplates,theme_fallbacks');
+}
+
+// ============================================================================
 // DEBUG MODE
 // ============================================================================
 

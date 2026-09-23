@@ -263,6 +263,50 @@ function adjustAdminFolderName($zipPath) {
 }
 
 /**
+ * Determines which currently active templates/themes are WBCE standard
+ * templates and therefore should be protected from being overwritten on update.
+ *
+ * Extracted into its own pure function (instead of inline in execute_update.php)
+ * so it can be unit-tested without a full WBCE bootstrap.
+ *
+ * @param string|null $activeTemplate Value of DEFAULT_TEMPLATE, or null
+ * @param string|null $activeTheme Value of DEFAULT_THEME, or null
+ * @param string $standardTemplatesCsv Comma-separated list (WBCE_UPDATER_STANDARD_TEMPLATES)
+ * @return array List of folder names to protect (0, 1 or 2 entries)
+ */
+function getProtectedTemplateFolders($activeTemplate, $activeTheme, $standardTemplatesCsv) {
+    $standardTemplates = array_map('trim', explode(',', $standardTemplatesCsv));
+    $protected = [];
+
+    if ($activeTemplate !== null && $activeTemplate !== '' && in_array($activeTemplate, $standardTemplates, true)) {
+        $protected[] = $activeTemplate;
+    }
+
+    if ($activeTheme !== null && $activeTheme !== '' && $activeTheme !== $activeTemplate
+        && in_array($activeTheme, $standardTemplates, true)) {
+        $protected[] = $activeTheme;
+    }
+
+    return $protected;
+}
+
+/**
+ * Checks whether a ZIP entry name lies inside one of the protected template folders.
+ *
+ * @param string $filename Entry name in the ZIP (e.g. "templates/wbcetik/index.php")
+ * @param array $protectedTemplateFolders Result of getProtectedTemplateFolders()
+ * @return bool
+ */
+function isProtectedTemplateFile($filename, array $protectedTemplateFolders) {
+    foreach ($protectedTemplateFolders as $protectedFolder) {
+        if (strpos($filename, 'templates/' . $protectedFolder . '/') === 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * Debug-Funktion: Zeigt die Struktur eines ZIPs
  *
  * @param string $zipPath Pfad zur ZIP-Datei

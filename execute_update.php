@@ -27,6 +27,9 @@ require_once __DIR__ . '/config_defaults.php';
 // Include compatibility checker for dynamic PHP version check
 require_once __DIR__ . '/compatibility_checker.php';
 
+// Include repack/template-protection helpers
+require_once __DIR__ . '/repack_helper.php';
+
 $admin = new admin('Admintools', 'admintools', false, false);
 
 if (!$admin->is_authenticated() || !$admin->isAdmin()) {
@@ -202,6 +205,13 @@ if ($success) {
     echo '<div class="step">';
     echo '<strong>' . $LANG['EXEC_STEP3'] . '</strong><br>';
 
+    // Protect the active standard template/theme from being overwritten (local customizations)
+    $protectedTemplateFolders = getProtectedTemplateFolders(
+        defined('DEFAULT_TEMPLATE') ? DEFAULT_TEMPLATE : null,
+        defined('DEFAULT_THEME') ? DEFAULT_THEME : null,
+        WBCE_UPDATER_STANDARD_TEMPLATES
+    );
+
     try {
         $zip = new ZipArchive;
         $res = $zip->open($zipFile);
@@ -214,6 +224,9 @@ if ($success) {
             if ($realBasePath === false) {
                 throw new Exception($LANG['EXEC_DIR_RESOLVE_ERROR']);
             }
+
+            $filesToExtract = [];
+            $skippedFiles   = [];
 
             for ($i = 0; $i < $numFiles; $i++) {
                 $stat     = $zip->statIndex($i);
@@ -249,12 +262,29 @@ if ($success) {
                         throw new Exception($LANG['EXEC_SEC_TRAVERSAL']);
                     }
                 }
+
+                // Skip files inside a protected (active, customizable) standard template/theme
+                if (isProtectedTemplateFile($filename, $protectedTemplateFolders)) {
+                    $skippedFiles[] = $filename;
+                    continue;
+                }
+
+                $filesToExtract[] = $filename;
             }
 
-            $zip->extractTo($path);
+            // Guard against extractTo() with an empty list (all entries filtered out)
+            if (!empty($filesToExtract)) {
+                $zip->extractTo($path, $filesToExtract);
+            }
             $zip->close();
 
-            echo '<span style="color: #28a745;">✅ ' . sprintf($LANG['EXEC_FILES_EXTRACTED'], $numFiles, htmlspecialchars($path)) . '</span>';
+            echo '<span style="color: #28a745;">✅ ' . sprintf($LANG['EXEC_FILES_EXTRACTED'], count($filesToExtract), htmlspecialchars($path)) . '</span>';
+
+            if (!empty($skippedFiles)) {
+                $protectedNames = implode(', ', $protectedTemplateFolders);
+                echo '<br><span style="color: #856404;">⚠️ ' . sprintf($LANG['EXEC_TEMPLATE_PROTECTED'], htmlspecialchars($protectedNames), count($skippedFiles)) . '</span>';
+                $warnings[] = sprintf($LANG['EXEC_TEMPLATE_PROTECTED_WARNING'], $protectedNames);
+            }
         } else {
             throw new Exception($LANG['EXEC_ZIP_OPEN_FAILED']);
         }

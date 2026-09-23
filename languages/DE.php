@@ -206,6 +206,8 @@ Trotzdem fortfahren?',
     'EXEC_SEC_BAD_PATH'       => 'Sicherheitswarnung: Ungültiger Dateipfad im ZIP erkannt: %s',
     'EXEC_SEC_ABS_PATH'       => 'Sicherheitswarnung: Absoluter Pfad im ZIP erkannt: %s',
     'EXEC_SEC_TRAVERSAL'      => 'Sicherheitswarnung: Pfad-Traversal außerhalb des Zielverzeichnisses erkannt',
+    'EXEC_TEMPLATE_PROTECTED'         => 'Aktives Standardtemplate "%s" wurde vom Update ausgeschlossen (%d Dateien übersprungen) - lokale Anpassungen bleiben erhalten.',
+    'EXEC_TEMPLATE_PROTECTED_WARNING' => 'Das aktive Standardtemplate/-theme "%s" wurde beim Update NICHT aktualisiert, um lokale Anpassungen zu schützen. Prüfen Sie ggf. manuell im WBCE-Changelog, ob es sicherheitsrelevante Änderungen an diesem Template gibt.',
 
     // Execute Update – Ergebnisseite
     'EXEC_SUCCESS_TITLE'       => 'Update-Paket erfolgreich entpackt!',

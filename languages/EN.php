@@ -206,6 +206,8 @@ Continue anyway?',
     'EXEC_SEC_BAD_PATH'       => 'Security warning: Invalid file path detected in ZIP: %s',
     'EXEC_SEC_ABS_PATH'       => 'Security warning: Absolute path detected in ZIP: %s',
     'EXEC_SEC_TRAVERSAL'      => 'Security warning: Path traversal outside target directory detected',
+    'EXEC_TEMPLATE_PROTECTED'         => 'Active standard template "%s" was excluded from the update (%d files skipped) - local customizations are preserved.',
+    'EXEC_TEMPLATE_PROTECTED_WARNING' => 'The active standard template/theme "%s" was NOT updated in order to protect local customizations. Please check the WBCE changelog manually for any security-relevant changes to this template.',
 
     // Execute Update – Result page
     'EXEC_SUCCESS_TITLE'       => 'Update package extracted successfully!',
