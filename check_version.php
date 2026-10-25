@@ -87,7 +87,9 @@ try {
         $context = stream_context_create([
             'http' => [
                 'method' => 'GET',
-                'header' => "User-Agent: WBCE-Updater/1.0\r\nAccept: application/vnd.github.v3+json\r\nAccept-Encoding: gzip",
+                // No "Accept-Encoding: gzip": the release list is small, and decompressing it would need
+                // a gz function that the WBCE 1.7 addon scanner (CodeVet) flags as forbidden.
+                'header' => "User-Agent: WBCE-Updater/1.0\r\nAccept: application/vnd.github.v3+json",
                 'timeout' => WBCE_UPDATER_HTTP_TIMEOUT,
                 'ignore_errors' => true
             ],
@@ -122,19 +124,7 @@ try {
             $is_success = $response !== false && !empty($response) && ($status_code === null || $status_code < 400);
 
             if ($is_success) {
-                // Decompress if GitHub sent gzip-encoded response
-                if (function_exists('gzdecode')) {
-                    foreach ($http_response_header as $hdr) {
-                        if (stripos($hdr, 'Content-Encoding:') !== false && stripos($hdr, 'gzip') !== false) {
-                            $decoded = gzdecode($response);
-                            if ($decoded !== false) {
-                                $response = $decoded;
-                            }
-                            break;
-                        }
-                    }
-                }
-                // Save decompressed JSON to cache
+                // Save JSON to cache
                 @file_put_contents($cache_file, $response);
                 break;
             }
