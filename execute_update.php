@@ -37,14 +37,26 @@ if (!$admin->is_authenticated() || !$admin->isAdmin()) {
     exit;
 }
 
+// Unpacks the staged package over the core: never on a plain GET (a link on a
+// foreign site carries the session cookie with SameSite=Lax).
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !$admin->checkFTAN()) {
+    header('Location: ' . ADMIN_URL . '/admintools/tool.php?tool=wbce_updater');
+    exit;
+}
+
+if (!empty($wbce_updater_disabled)) {
+    header('Location: ' . ADMIN_URL . '/admintools/tool.php?tool=wbce_updater');
+    exit;
+}
+
 // Load language file
 $lang = (file_exists(__DIR__ . '/languages/' . LANGUAGE . '.php'))
     ? __DIR__ . '/languages/' . LANGUAGE . '.php'
     : __DIR__ . '/languages/EN.php';
 require $lang;
 
-// Get target version from GET parameter
-$targetVersion = $_GET['version'] ?? '';
+// Get target version from POST parameter
+$targetVersion = $_POST['version'] ?? '';
 
 // Security: Validate version format
 if (!empty($targetVersion) && !preg_match('/^v?\d+\.\d+(\.\d+)?$/i', $targetVersion)) {

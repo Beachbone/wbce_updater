@@ -164,6 +164,7 @@ Continue anyway?',
     // Tool Disabled
     'TOOL_DISABLED' => 'The update tool is disabled.',
     'TOOL_DISABLED_INFO' => 'Set $wbce_updater_disabled to false in user_config.php to re-enable the tool.',
+    'ADMIN_ONLY' => 'The update assistant is available to administrators only.',
 
     // Checksums
     'CHECKSUM_VALIDATED' => 'Download successfully validated',

@@ -31,6 +31,14 @@ require $lang;
 // Security check: Admin only
 $admin = new admin('Admintools', 'admintools', false, false);
 
+// The updater replaces core files: administrators only. The 4th argument false
+// switches off the constructor's own checks, and a valid FTAN only proves a
+// logged-in backend user - so both have to be checked here.
+if (!$admin->is_authenticated() || !$admin->isAdmin()) {
+    header('Location: ' . ADMIN_URL . '/index.php');
+    exit;
+}
+
 if (!empty($wbce_updater_disabled)) {
     header('Location: ' . ADMIN_URL . '/admintools/tool.php?tool=wbce_updater');
     exit;
@@ -78,10 +86,13 @@ if (!isset($parsed_url['scheme']) || $parsed_url['scheme'] !== 'https') {
 $is_custom_source = !empty($wbce_updater_custom_source_url)
     && hash_equals($wbce_updater_custom_source_url, $download_url);
 
-// Standard path: only allow GitHub domains
+// Standard path: only the official repository (owner/repo taken from WBCE_UPDATER_GITHUB_API).
+// GitHub's own redirects after this request are not affected, only the submitted URL is checked.
 if (!$is_custom_source) {
-    if (!isset($parsed_url['host']) ||
-        !preg_match('/^(api\.)?github\.com$/i', $parsed_url['host'])) {
+    $repo_path = preg_replace('#^/repos/([^/]+/[^/]+)/.*$#', '$1', (string) parse_url(WBCE_UPDATER_GITHUB_API, PHP_URL_PATH));
+    $host_ok   = isset($parsed_url['host']) && preg_match('/^(api\.)?github\.com$/i', $parsed_url['host']);
+    $repo_ok   = preg_match('#^/(repos/)?' . preg_quote($repo_path, '#') . '/#i', $parsed_url['path'] ?? '');
+    if (!$host_ok || !$repo_ok) {
         header('Location: ' . ADMIN_URL . '/admintools/tool.php?tool=wbce_updater');
         exit;
     }
@@ -205,9 +216,6 @@ if ($success && $enable_maintenance) {
     $maintenance_already_active = $maint['already_active'];
 }
 
-// Generate output
-$update_url = WB_URL . '/modules/wbce_updater/execute_update.php?version=' . urlencode($target_version);
-
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo LANGUAGE; ?>">
@@ -265,6 +273,12 @@ $update_url = WB_URL . '/modules/wbce_updater/execute_update.php?version=' . url
             border-radius: 4px;
             font-weight: bold;
             margin-top: 20px;
+        }
+        button.button {
+            border: none;
+            cursor: pointer;
+            font-size: inherit;
+            font-family: inherit;
         }
         .button:hover {
             background: #0056b3;
@@ -369,13 +383,14 @@ $update_url = WB_URL . '/modules/wbce_updater/execute_update.php?version=' . url
             <p><strong><?php echo $LANG['READY_TO_UPDATE']; ?></strong></p>
             <p><?php echo $LANG['CLICK_BUTTON_TO_START']; ?></p>
 
-            <a href="<?php echo $update_url; ?>" class="button" id="start-update-btn" onclick="startUpdate(this)">
-                🚀 <?php echo $LANG['START_UPDATE_NOW']; ?>
-            </a>
-
-            <p style="margin-top: 30px; font-size: 14px; color: #666;">
-                <?php echo $LANG['OR_MANUAL']; ?>: <code><?php echo $update_url; ?></code>
-            </p>
+            <!-- execute_update.php unpacks over the core: POST + FTAN only, never a plain link -->
+            <form method="post" action="<?php echo WB_URL; ?>/modules/wbce_updater/execute_update.php" onsubmit="startUpdate(this)">
+                <?php echo $admin->getFTAN(); ?>
+                <input type="hidden" name="version" value="<?php echo htmlspecialchars($target_version); ?>">
+                <button type="submit" class="button" id="start-update-btn">
+                    🚀 <?php echo $LANG['START_UPDATE_NOW']; ?>
+                </button>
+            </form>
 
             <p style="margin-top: 20px;">
                 <a href="<?php echo ADMIN_URL; ?>/admintools/tool.php?tool=wbce_updater" class="button button-secondary">
@@ -411,10 +426,11 @@ $update_url = WB_URL . '/modules/wbce_updater/execute_update.php?version=' . url
     </div>
 
     <script>
-    function startUpdate(link) {
+    function startUpdate(form) {
+        var btn = form.querySelector('button[type="submit"]');
         document.getElementById('loading-overlay').classList.add('active');
-        link.style.pointerEvents = 'none';
-        link.style.opacity = '0.6';
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
     }
     </script>
 </body>

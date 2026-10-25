@@ -26,6 +26,15 @@ $langFile = (file_exists(__DIR__ . '/languages/' . LANGUAGE . '.php'))
     : __DIR__ . '/languages/EN.php';
 require_once $langFile;
 
+// The updater replaces core files: administrators only. A group with just the
+// admintools permission must not even see the update forms.
+if (!$admin->isAdmin()) {
+    echo '<div class="alert-danger" style="padding:20px;">';
+    echo '<strong>' . htmlspecialchars($LANG['ADMIN_ONLY']) . '</strong>';
+    echo '</div>';
+    return;
+}
+
 // Get current WBCE version from database
 // $database is globally available through the framework
 global $database;

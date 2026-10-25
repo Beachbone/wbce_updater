@@ -164,6 +164,7 @@ Trotzdem fortfahren?',
     // Tool Disabled
     'TOOL_DISABLED' => 'Das Update-Tool ist deaktiviert.',
     'TOOL_DISABLED_INFO' => 'Setzen Sie in user_config.php die Variable $wbce_updater_disabled auf false, um das Tool wieder zu aktivieren.',
+    'ADMIN_ONLY' => 'Der Update-Assistent steht nur Administratoren zur Verfügung.',
 
     // Checksums
     'CHECKSUM_VALIDATED' => 'Download erfolgreich validiert',
