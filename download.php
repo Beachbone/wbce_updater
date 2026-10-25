@@ -421,8 +421,8 @@ if ($success && $enable_maintenance) {
     <!-- Loading Overlay -->
     <div id="loading-overlay" class="loading-overlay">
         <div class="spinner"></div>
-        <div class="loading-text">⏳ <?php echo $LANG['LOADING_DOWNLOAD']; ?>...</div>
-        <div class="loading-subtext"><?php echo $LANG['DOWNLOAD_PLEASE_WAIT']; ?></div>
+        <div class="loading-text">⏳ <?php echo $LANG['LOADING_EXTRACT']; ?>...</div>
+        <div class="loading-subtext"><?php echo $LANG['EXTRACT_PLEASE_WAIT']; ?></div>
     </div>
 
     <script>
