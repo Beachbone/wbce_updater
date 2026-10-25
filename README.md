@@ -2,7 +2,7 @@
 
 Update-Assistent für WBCE CMS: prüft GitHub auf neue Releases, lädt sie herunter (oder nimmt ein manuell hochgeladenes ZIP entgegen) und bereitet die Installation vor.
 
-**Version:** 1.1.0
+**Version:** 1.1.1
 **Kompatibel mit:** WBCE 1.4.x – 1.6.x
 
 ## Features
