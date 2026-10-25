@@ -148,6 +148,8 @@ if (!empty($targetVersion) && !preg_match('/^v?\d+\.\d+(\.\d+)?$/i', $targetVers
 $success = true;
 $errors = [];
 $warnings = [];
+// Own flag: $warnings also collects non-PHP notices (e.g. protected template)
+$phpChangeNeeded = false;
 
 // Step 1: PHP Compatibility Check (Dynamic from requirements.json)
 // IMPORTANT: Only WARNING, never blocking! User might need to update WBCE first, then change PHP version.
@@ -178,6 +180,7 @@ if (!empty($targetVersion)) {
             echo '</span>';
 
             $warnings[] = sprintf($LANG['EXEC_PHP_COMPAT_WARN'], PHP_VERSION, $targetVersion, $phpMinStr, $phpMaxStr);
+            $phpChangeNeeded = true;
         }
     } else {
         echo '<span style="color: #28a745;">✅ ' . sprintf($LANG['EXEC_PHP_COMPATIBLE_MSG'], PHP_VERSION, htmlspecialchars($targetVersion)) . '</span>';
@@ -364,7 +367,7 @@ if ($success) {
             <strong><?php echo $LANG['EXEC_NEXT_STEP_TITLE']; ?></strong>
             <p><?php echo $LANG['EXEC_NEXT_STEP_INFO']; ?></p>
             <p><strong><?php echo $LANG['EXEC_WINDOW_HINT']; ?></strong></p>
-            <?php if (!empty($warnings)): ?>
+            <?php if ($phpChangeNeeded): ?>
             <p style="color: #dc3545; font-weight: bold;">⚠️ <?php echo $LANG['EXEC_PHP_CHANGE_REMINDER']; ?></p>
             <?php endif; ?>
         </div>
